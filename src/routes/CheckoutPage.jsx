@@ -32,16 +32,20 @@ export default function CheckoutPage() {
       const resp = await apiClient.get('/addresses')
       const data = resp.data || []
       setAddresses(data)
-      // Auto-select default or first address
       const defaultAddr = data.find((a) => a.is_default)
       if (defaultAddr) {
         setSelectedAddressId(defaultAddr.id)
       } else if (data.length > 0) {
         setSelectedAddressId(data[0].id)
       }
-    } catch {
-      toast.error('Could not load addresses. Please try again.')
-      navigate('/login')
+    } catch (err) {
+      const status = err?.response?.status
+      if (status === 401) {
+        toast.error('Please log in to continue.')
+        navigate('/login')
+      } else {
+        toast.error('Could not load addresses. Please try again.')
+      }
     } finally {
       setLoadingAddresses(false)
     }
@@ -54,7 +58,7 @@ export default function CheckoutPage() {
 
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId)
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!selectedAddressId) {
       toast.error('Please select a delivery address.')
       return
