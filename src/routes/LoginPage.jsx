@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { login, loadUser } from '../features/auth/authSlice'
+import { login, loadUser, resetAuth } from '../features/auth/authSlice'
 
 export default function LoginPage() {
   const dispatch = useDispatch()
@@ -16,6 +16,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
+    dispatch(resetAuth())
     try {
       await dispatch(login(form)).unwrap()
       await dispatch(loadUser()).unwrap()

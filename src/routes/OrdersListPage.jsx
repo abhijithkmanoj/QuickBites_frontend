@@ -1,23 +1,41 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import apiClient from '../lib/axios'
 import { toast } from 'react-toastify'
+import authService from '../features/auth/authService'
+
+const ORDER_STATUSES = ['pending', 'accepted', 'preparing', 'picked_up', 'delivered', 'cancelled']
 
 export default function OrdersListPage() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
+  const [statusFilter, setStatusFilter] = useState(null)
+  const [sortOrder, setSortOrder] = useState('desc') // desc = newest first, asc = oldest first
+  const [page, setPage] = useState(0)
+  const [total, setTotal] = useState(0)
+  const [limit] = useState(20)
 
   useEffect(() => {
     fetchOrders()
-  }, [])
+  }, [statusFilter, page, sortOrder])
 
   async function fetchOrders() {
     setLoading(true)
     try {
-      const resp = await apiClient.get('/orders')
-      setOrders(resp.data || [])
-    } catch {
+      const result = await authService.getOrderHistory(statusFilter, page * limit, limit)
+      let ordersList = result.items || []
+      
+      // Sort by date
+      ordersList = ordersList.sort((a, b) => {
+        const dateA = new Date(a.created_at)
+        const dateB = new Date(b.created_at)
+        return sortOrder === 'desc' ? dateB - dateA : dateA - dateB
+      })
+      
+      setOrders(ordersList)
+      setTotal(result.total || 0)
+    } catch (error) {
       toast.error('Failed to load orders.')
+      console.error(error)
     } finally {
       setLoading(false)
     }
@@ -32,6 +50,13 @@ export default function OrdersListPage() {
     cancelled: 'bg-rose-100 text-rose-800',
   }
 
+  const handleStatusFilterChange = (status) => {
+    setStatusFilter(status === statusFilter ? null : status)
+    setPage(0)
+  }
+
+  const totalPages = Math.ceil(total / limit)
+
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -39,11 +64,69 @@ export default function OrdersListPage() {
         <p className="mt-2 text-sm text-slate-600">Track and review all your orders.</p>
       </div>
 
+      {/* Filters & Sorting */}
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+        <div>
+          <h3 className="text-sm font-semibold text-slate-900 mb-3">Filter by Status</h3>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => handleStatusFilterChange(null)}
+              className={`px-3 py-1 rounded-full text-sm font-medium transition ${
+                statusFilter === null
+                  ? 'bg-brand-600 text-white'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              All
+            </button>
+            {ORDER_STATUSES.map((status) => (
+              <button
+                key={status}
+                onClick={() => handleStatusFilterChange(status)}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition capitalize ${
+                  statusFilter === status
+                    ? 'bg-brand-600 text-white'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                {status.replace('_', ' ')}
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        <div>
+          <h3 className="text-sm font-semibold text-slate-900 mb-3">Sort by Date</h3>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSortOrder('desc')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                sortOrder === 'desc'
+                  ? 'bg-brand-600 text-white'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              Newest First
+            </button>
+            <button
+              onClick={() => setSortOrder('asc')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                sortOrder === 'asc'
+                  ? 'bg-brand-600 text-white'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              Oldest First
+            </button>
+          </div>
+        </div>
+      </div>
+
       {loading ? (
         <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">Loading orders...</div>
       ) : orders.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-600">
-          <p>No orders yet.</p>
+          <p>{statusFilter ? `No ${statusFilter} orders.` : 'No orders yet.'}</p>
           <Link to="/restaurants" className="mt-4 inline-flex rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800">
             Browse restaurants
           </Link>
@@ -72,15 +155,38 @@ export default function OrdersListPage() {
                       })}
                     </span>
                   </div>
-                  <p className="font-medium text-slate-900">{order.items?.length || 0} item(s)</p>
+                  <p className="font-medium text-slate-900">Order #{order.id.substring(0, 8)}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xl font-semibold text-slate-900">₹{order.total_amount?.toFixed(2)}</p>
-                  <p className="text-xs text-slate-500">{order.payment?.method === 'cod' ? 'Cash on Delivery' : order.payment?.method}</p>
+                  <p className="text-xl font-semibold text-slate-900">₹{order.total_price?.toFixed(2)}</p>
+                  <p className="text-xs text-slate-500">View details →</p>
                 </div>
               </div>
             </Link>
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-8 flex gap-2 justify-center items-center">
+          <button
+            onClick={() => setPage(Math.max(0, page - 1))}
+            disabled={page === 0}
+            className="px-3 py-2 bg-slate-200 text-slate-700 rounded disabled:opacity-50 transition"
+          >
+            Previous
+          </button>
+          <span className="text-slate-600">
+            Page {page + 1} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+            disabled={page >= totalPages - 1}
+            className="px-3 py-2 bg-slate-200 text-slate-700 rounded disabled:opacity-50 transition"
+          >
+            Next
+          </button>
         </div>
       )}
     </div>

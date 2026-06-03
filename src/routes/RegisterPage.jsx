@@ -2,13 +2,13 @@ import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { register } from '../features/auth/authSlice'
+import { register, resetAuth } from '../features/auth/authSlice'
 
 export default function RegisterPage() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { status, error } = useSelector((state) => state.auth)
-  const [form, setForm] = useState({ name: '', email: '', password: '', phone: '' })
+  const [form, setForm] = useState({ name: '', email: '', password: '', phone: '', role: 'customer' })
 
   const handleChange = (event) => {
     setForm({ ...form, [event.target.name]: event.target.value })
@@ -16,6 +16,7 @@ export default function RegisterPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
+    dispatch(resetAuth())
     try {
       await dispatch(register(form)).unwrap()
       toast.success('Account created successfully.')
@@ -74,6 +75,22 @@ export default function RegisterPage() {
             className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
           />
         </label>
+        
+        <label className="block">
+          <span className="text-sm font-medium text-slate-700">Account Type</span>
+          <select
+            name="role"
+            value={form.role}
+            onChange={handleChange}
+            className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
+          >
+            <option value="customer">Customer</option>
+            <option value="restaurant_owner">Restaurant Owner</option>
+            <option value="delivery_partner">Delivery Partner</option>
+            <option value="admin">Admin</option>
+          </select>
+        </label>
+        
         <button
           type="submit"
           disabled={status === 'loading'}

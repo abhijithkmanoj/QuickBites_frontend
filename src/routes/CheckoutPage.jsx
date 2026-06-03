@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import apiClient from '../lib/axios'
 import { getCartItems, clearCart } from '../lib/cart'
 import { toast } from 'react-toastify'
+import { useSelector } from 'react-redux'
 
 const DELIVERY_FEE = 40.0
 const FREE_DELIVERY_THRESHOLD = 500.0
@@ -10,6 +11,7 @@ const GST_RATE = 0.05
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
+  const { user } = useSelector((state) => state.auth)
   const [cartItems, setCartItems] = useState([])
   const [addresses, setAddresses] = useState([])
   const [selectedAddressId, setSelectedAddressId] = useState(null)
@@ -17,14 +19,14 @@ export default function CheckoutPage() {
   const [placing, setPlacing] = useState(false)
 
   useEffect(() => {
-    const items = getCartItems()
+    const items = getCartItems(user?.id)
     if (!items || items.length === 0) {
       navigate('/cart')
       return
     }
     setCartItems(items)
     fetchAddresses()
-  }, [])
+  }, [user?.id])
 
   async function fetchAddresses() {
     setLoadingAddresses(true)

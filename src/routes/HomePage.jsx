@@ -8,50 +8,112 @@ export default function HomePage() {
   }
 
   return (
-    <section className="space-y-8">
-      <div className="card bg-gradient-to-br from-brand-500 via-brand-600 to-accent-500 text-white">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-3">
-            <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+    <section className="space-y-12">
+      {/* Enhanced Hero Section */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="bg-gradient-to-br from-brand-500 via-brand-600 to-accent-500 opacity-90"></div>
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2240%22 viewBox=%220 0 60 40%22><path fill=%22%23ffffff%22 fill-opacity=%220.05%22 d=%22M0 0h60v40H0z%22/%22>')]"></div>
+        </div>
+        <div className="relative z-10 py-20 md:py-24 text-white">
+          <div className="mx-auto max-w-4xl px-4 lg:px-8 text-center">
+            <h1 className="text-4xl font-bold tracking-tight lg:text-5xl mb-6">
               Craving something delicious?
             </h1>
-            <p className="max-w-xl text-brand-50">
+            <p className="text-xl text-brand-50 max-w-2xl mx-auto mb-8">
               Order food from the best local restaurants with easy delivery to your doorstep.
               Fresh, fast, and right to your door.
             </p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Link to="/restaurants" className="btn-primary bg-white text-brand-700 hover:bg-brand-50">
-              Order now
-            </Link>
-            <button
-              onClick={handleDemoToast}
-              className="btn-secondary border-white/30 bg-white/10 text-white hover:bg-white/20"
-            >
-              How it works
-            </button>
+            <div className="flex flex-col sm:flex-row sm:justify-center sm:gap-4">
+              <Link to="/restaurants" 
+                className="flex-1 px-6 py-3 bg-white text-brand-700 font-medium rounded-xl 
+                           hover:bg-brand-50 transition-transform transform hover:-translate-y-1 
+                           shadow-lg hover:shadow-xl">
+                Order now
+              </Link>
+              <button
+                onClick={handleDemoToast}
+                className="flex-1 px-6 py-3 border border-white/20 bg-white/10 text-white font-medium 
+                           rounded-xl hover:bg-white/20 transition-transform transform hover:-translate-y-1"
+              >
+                How it works
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {[
-          { title: 'Browse Restaurants', desc: 'Explore top-rated restaurants near you.', to: '/restaurants' },
-          { title: 'Track Orders', desc: 'Real-time updates from kitchen to door.', to: '/orders' },
-          { title: 'Easy Checkout', desc: 'Fast and secure payments.', to: '/cart' },
-        ].map((item) => (
-          <Link key={item.to} to={item.to} className="card group">
-            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-100 text-brand-600 transition group-hover:bg-brand-500 group-hover:text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                <path d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75Zm0 12a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V15a.75.75 0 0 1 .75-.75Zm9-6.75a.75.75 0 0 0-.75.75v2.25a.75.75 0 0 0 1.5 0V8.25a.75.75 0 0 0-.75-.75Zm-18 0a.75.75 0 0 0-.75.75v2.25a.75.75 0 0 0 1.5 0V8.25a.75.75 0 0 0-.75-.75Z" />
-                <path d="M5.47 5.47a.75.75 0 0 0 0 1.06l1.97 1.97a.75.75 0 0 0 1.06-1.06l-1.97-1.97a.75.75 0 0 0-1.06 0Zm12.06 1.06a.75.75 0 0 1 1.06 0l1.97 1.97a.75.75 0 1 1-1.06 1.06l-1.97-1.97a.75.75 0 0 1 0-1.06Z" />
-                <path fillRule="evenodd" d="M12 7.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Zm0 1.5a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-surface-900 group-hover:text-brand-600">{item.title}</h3>
-            <p className="mt-1 text-sm text-surface-600">{item.desc}</p>
-          </Link>
-        ))}
+      {/* Features Section */}
+      <section className="py-12">
+        <div className="mx-auto max-w-4xl px-4 lg:px-8">
+          <h2 className="text-2xl font-bold text-center text-surface-900 mb-10">
+            Why choose QuickBites?
+          </h2>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { 
+                title: 'Browse Restaurants', 
+                desc: 'Explore top-rated restaurants near you.', 
+                icon: 'Utensils',
+                bg: 'bg-brand-50',
+                color: 'text-brand-600'
+              },
+              { 
+                title: 'Track Orders', 
+                desc: 'Real-time updates from kitchen to door.', 
+                icon: 'MapPin',
+                bg: 'bg-brand-50',
+                color: 'text-brand-600'
+              },
+              { 
+                title: 'Easy Checkout', 
+                desc: 'Fast and secure payments.', 
+                icon: 'CreditCard',
+                bg: 'bg-brand-50',
+                color: 'text-brand-600'
+              },
+            ].map((item) => (
+              <div key={item.title} className="group">
+                <div className="flex h-12 w-12 items-center justify-center mb-4 
+                            rounded-xl 
+                            ${item.bg} 
+                            ${item.color}
+                            group-hover:bg-brand-100/80 
+                            transition-colors duration-300">
+                  {/* Icon would go here - using text for now */}
+                  <span className="text-xl">{item.icon === 'Utensils' ? '🍴' : item.icon === 'MapPin' ? '📍' : '💳'}</span>
+                </div>
+                <h3 className="text-lg font-medium text-surface-900 mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-surface-600">
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-slate-100"></div>
+        <div className="relative z-10 py-16">
+          <div className="mx-auto max-w-2xl px-4 lg:px-8 text-center">
+            <h2 className="text-2xl font-bold text-surface-900 mb-6">
+              Ready to order your favorite meal?
+            </h2>
+            <p className="text-lg text-surface-500 mb-8">
+              Join thousands of satisfied customers enjoying food delivery made easy.
+            </p>
+            <Link to="/restaurants" 
+              className="inline-flex px-8 py-3 bg-brand-600 text-white font-medium 
+                         rounded-xl hover:bg-brand-700 transition-transform transform 
+                         hover:-translate-y-1 shadow-lg hover:shadow-xl">
+              Browse Restaurants
+            </Link>
+          </div>
+        </div>
       </div>
     </section>
   )

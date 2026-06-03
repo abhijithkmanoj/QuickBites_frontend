@@ -53,95 +53,151 @@ export default function RestaurantDetailPage() {
   }, [menuItems, selectedCategory])
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div>
-          <h1 className="text-3xl font-semibold text-slate-900">Restaurant Details</h1>
-          <p className="mt-2 text-sm text-slate-600">Browse menu items, filter by category, and add favorites to your cart.</p>
-        </div>
-        <Link to="/restaurants" className="inline-flex rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50">
-          Back to restaurants
-        </Link>
-      </div>
-
-      {status && <div className="rounded-3xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-700">{status}</div>}
-
+    <div className="space-y-8">
+      {/* Header Section */}
       {restaurant && (
-        <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+        <div className="flex flex-col lg:flex-row items-start gap-8">
+          {/* Image Section */}
+          <div className="flex-shrink-0 w-full lg:w-1/2">
+            <div className="relative h-64 w-full rounded-2xl overflow-hidden shadow-lg">
               <img
                 src={restaurant.image_url || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240"><rect width="100%" height="100%" fill="%23e2e8f0"/></svg>'}
                 alt={restaurant.name}
-                className="h-48 w-full rounded-3xl object-cover sm:h-56 sm:w-80"
-                onError={(e) => { e.currentTarget.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240"><rect width="100%" height="100%" fill="%23e2e8f0"/></svg>' }}
+                className="h-full w-full object-cover object-center"
+                onError={(e) => { 
+                  e.currentTarget.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240"><rect width="100%" height="100%" fill="%23e2e8f0"/></svg>' 
+                }}
               />
-              <div className="flex-1 space-y-3">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-800">{restaurant.cuisine || 'Cuisine'}</span>
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">Rating: {restaurant.rating ?? '—'}</span>
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">Delivery: {restaurant.delivery_time ?? 'N/A'} mins</span>
+              {/* Status Badge */}
+              <div className="absolute top-4 left-4 flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1">
+                <span className="h-2 w-2 rounded-full 
+                            ${restaurant.is_active ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
+                <span className="text-xs font-medium 
+                            ${restaurant.is_active ? 'text-emerald-700' : 'text-rose-700'}">
+                  {restaurant.is_active ? 'Open' : 'Closed'}
+                </span>
+              </div>
+              {/* Offer Badge */}
+              {restaurant.offer && (
+                <div className="absolute top-4 right-4 bg-emerald-600 text-white text-xs font-medium 
+                            px-3 py-2 rounded-full shadow-md">
+                  {restaurant.offer}
                 </div>
-                <h2 className="text-2xl font-semibold text-slate-900">{restaurant.name}</h2>
-                <p className="text-sm leading-7 text-slate-600">{restaurant.description || 'A lovely restaurant serving tasty meals and local favorites.'}</p>
-                <div className="rounded-3xl bg-slate-50 p-4 text-sm text-slate-600">
-                  <p>{restaurant.address}</p>
-                  <p className="mt-2">{restaurant.is_active ? 'Open for orders' : 'Currently unavailable'}</p>
-                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Details Section */}
+          <div className="flex-1 space-y-6">
+            <div className="space-y-4">
+              <h1 className="text-3xl font-bold text-slate-900">{restaurant.name}</h1>
+              <div className="flex flex-wrap gap-3 mb-2">
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-sm font-medium">
+                  {restaurant.cuisine || 'Cuisine'}
+                </span>
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-sm font-medium">
+                  ⏱ {restaurant.delivery_time || 'N/A'} min
+                </span>
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-sm font-medium">
+                  ⭐ {restaurant.rating ?? '—'}
+                </span>
+              </div>
+              <p className="text-lg leading-relaxed text-slate-600">
+                {restaurant.description || 'A lovely restaurant serving tasty meals and local favorites.'}
+              </p>
+              <div className="border-t border-slate-100 pt-4">
+                <p className="text-sm text-slate-600">
+                  <strong className="text-slate-900">Address:</strong> {restaurant.address}
+                </p>
+                {restaurant.phone && (
+                  <p className="mt-1 text-sm text-slate-600">
+                    <strong className="text-slate-900">Phone:</strong> {restaurant.phone}
+                  </p>
+                )}
               </div>
             </div>
-          </section>
-
-          <aside className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-900">Restaurant Summary</h3>
-            <div className="mt-4 space-y-3 text-sm text-slate-600">
-              <div>
-                <span className="font-semibold text-slate-900">Cuisine</span>: {restaurant.cuisine || 'Unknown'}
-              </div>
-              <div>
-                <span className="font-semibold text-slate-900">Address</span>: {restaurant.address}
-              </div>
-              <div>
-                <span className="font-semibold text-slate-900">Menu Items</span>: {menuItems.length}
-              </div>
-              <div>
-                <span className="font-semibold text-slate-900">Status</span>: {restaurant.is_active ? 'Active' : 'Inactive'}
-              </div>
+            
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-4 mt-6">
+              <Link 
+                to="/restaurants" 
+                className="flex-1 sm:flex-none px-5 py-3 bg-slate-100 text-slate-700 font-medium 
+                           rounded-xl hover:bg-slate-200 transition-colors"
+              >
+                Back to restaurants
+              </Link>
+              <button
+                className="flex-1 sm:flex-none px-5 py-3 bg-brand-600 text-white font-medium 
+                           rounded-xl hover:bg-brand-700 transition-transform transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+              >
+                View Menu
+              </button>
             </div>
-          </aside>
+          </div>
+        </div>
+      )}
+      
+      {status && (
+        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+          {status}
         </div>
       )}
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2 className="text-2xl font-semibold text-slate-900">Menu</h2>
-            <p className="mt-1 text-sm text-slate-600">Explore dishes by category and add items to your cart.</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {categories.map((category) => (
-              <button
-                key={category}
-                type="button"
-                onClick={() => setSelectedCategory(category)}
-                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${selectedCategory === category ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-6 grid gap-4 lg:grid-cols-2">
-          {filteredMenu.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-600">
-              No menu items match this category yet.
+      {restaurant && (
+        <>
+          {/* Menu Section */}
+          <section className="rounded-xl border border-slate-100 bg-white p-6 shadow-lg">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+                Menu
+                <span className="text-sm font-normal text-slate-500">
+                  ({menuItems.length} items)
+                </span>
+              </h2>
+              <p className="mt-1 text-sm text-slate-600">
+                Explore dishes by category and add items to your cart.
+              </p>
             </div>
-          ) : (
-            filteredMenu.map((item) => <MenuItemCard key={item.id} item={item} />)
-          )}
-        </div>
-      </section>
+            
+            {/* Category Tabs */}
+            <div className="mb-6">
+              <div className="flex flex-wrap gap-2">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => setSelectedCategory(category)}
+                    className={`${selectedCategory === category 
+                      ? 'bg-brand-600 text-white px-4 py-2 rounded-full font-medium shadow-md hover:bg-brand-700' 
+                      : 'bg-slate-50 text-slate-600 px-4 py-2 rounded-full hover:bg-slate-100'}`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Menu Items Grid */}
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredMenu.length === 0 ? (
+                <div className="col-span-full rounded-xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 11l3-3m0 0l3 3m-3-3v8M5 8h14M5 8a2 2 0 100 4h14a2 2 0 110-4M5 8a2 2 0 110-4h14a2 2 0 110-4z"></path>
+                    </svg>
+                    <h3 className="text-lg font-medium text-slate-900 mt-4">No menu items yet</h3>
+                    <p className="text-sm text-slate-500">
+                      This restaurant hasn't added any menu items to this category.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                filteredMenu.map((item) => <MenuItemCard key={item.id} item={item} />)
+              )}
+            </div>
+          </section>
+        </>
+      )}
     </div>
   )
 }

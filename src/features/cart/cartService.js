@@ -1,8 +1,8 @@
 import apiClient from '../../lib/axios'
 import { getCartItems, saveCartItems } from '../../lib/cart'
 
-export async function syncLocalCart() {
-  const local = getCartItems()
+export async function syncLocalCart(userId) {
+  const local = getCartItems(userId)
   if (!local || local.length === 0) return
 
   try {
@@ -21,7 +21,7 @@ export async function syncLocalCart() {
 
     // replace local cache with server canonical cart
     const resp = await apiClient.get('/cart')
-    saveCartItems(resp.data.items.map((i) => ({
+    saveCartItems(userId, resp.data.items.map((i) => ({
       id: i.id,
       restaurant_id: resp.data.restaurant_id,
       name: i.name,
@@ -35,7 +35,7 @@ export async function syncLocalCart() {
   }
 }
 
-export async function addItem(item) {
+export async function addItem(userId, item) {
   try {
     const resp = await apiClient.post('/cart/add', {
       restaurant_id: item.restaurant_id,
@@ -48,7 +48,7 @@ export async function addItem(item) {
     })
     const cart = resp.data
     // sync local storage to server
-    saveCartItems(cart.items.map((i) => ({ id: i.id, restaurant_id: cart.restaurant_id, name: i.name, price: i.price, quantity: i.quantity })))
+    saveCartItems(userId, cart.items.map((i) => ({ id: i.id, restaurant_id: cart.restaurant_id, name: i.name, price: i.price, quantity: i.quantity })))
     return cart
   } catch (err) {
     // on failure, caller should fallback to local
@@ -56,33 +56,33 @@ export async function addItem(item) {
   }
 }
 
-export async function updateItem(itemId, quantity) {
+export async function updateItem(userId, itemId, quantity) {
   try {
     const resp = await apiClient.put(`/cart/item/${itemId}`, { quantity })
     // update local copy
     const updated = resp.data
     const cartResp = await apiClient.get('/cart')
-    saveCartItems(cartResp.data.items.map((i) => ({ id: i.id, restaurant_id: cartResp.data.restaurant_id, name: i.name, price: i.price, quantity: i.quantity })))
+    saveCartItems(userId, cartResp.data.items.map((i) => ({ id: i.id, restaurant_id: cartResp.data.restaurant_id, name: i.name, price: i.price, quantity: i.quantity })))
     return updated
   } catch (err) {
     throw err
   }
 }
 
-export async function removeItem(itemId) {
+export async function removeItem(userId, itemId) {
   try {
     await apiClient.delete(`/cart/item/${itemId}`)
     const cartResp = await apiClient.get('/cart')
-    saveCartItems(cartResp.data.items.map((i) => ({ id: i.id, restaurant_id: cartResp.data.restaurant_id, name: i.name, price: i.price, quantity: i.quantity })))
+    saveCartItems(userId, cartResp.data.items.map((i) => ({ id: i.id, restaurant_id: cartResp.data.restaurant_id, name: i.name, price: i.price, quantity: i.quantity })))
   } catch (err) {
     throw err
   }
 }
 
-export async function clearCartServer() {
+export async function clearCartServer(userId) {
   try {
     await apiClient.delete('/cart')
-    saveCartItems([])
+    saveCartItems(userId, [])
   } catch (err) {
     throw err
   }

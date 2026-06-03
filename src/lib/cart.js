@@ -1,25 +1,31 @@
-const STORAGE_KEY = 'quickbites_cart'
+const FALLBACK_KEY = 'quickbites_cart'
 
-export function getCartItems() {
+export function resolveStorageKey(userId) {
+  if (typeof window === 'undefined') return FALLBACK_KEY
+  if (!userId) return FALLBACK_KEY
+  return `quickbites_cart:${userId}`
+}
+
+export function getCartItems(userId) {
   if (typeof window === 'undefined') {
     return []
   }
   try {
-    return JSON.parse(window.localStorage.getItem(STORAGE_KEY) || '[]')
+    return JSON.parse(window.localStorage.getItem(resolveStorageKey(userId)) || '[]')
   } catch (error) {
     return []
   }
 }
 
-export function saveCartItems(items) {
+export function saveCartItems(userId, items) {
   if (typeof window === 'undefined') {
     return
   }
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
+  window.localStorage.setItem(resolveStorageKey(userId), JSON.stringify(items))
 }
 
-export function addToCart(item) {
-  const cartItems = getCartItems()
+export function addToCart(userId, item) {
+  const cartItems = getCartItems(userId)
   const existing = cartItems.find((entry) => entry.id === item.id)
 
   if (existing) {
@@ -31,28 +37,28 @@ export function addToCart(item) {
     })
   }
 
-  saveCartItems(cartItems)
+  saveCartItems(userId, cartItems)
   return cartItems
 }
 
-export function getCartCount() {
-  return getCartItems().reduce((count, item) => count + (item.quantity || 1), 0)
+export function getCartCount(userId) {
+  return getCartItems(userId).reduce((count, item) => count + (item.quantity || 1), 0)
 }
 
-export function clearCart() {
-  saveCartItems([])
+export function clearCart(userId) {
+  saveCartItems(userId, [])
 }
 
-export function removeFromCart(itemId) {
-  const items = getCartItems().filter((i) => i.id !== itemId)
-  saveCartItems(items)
+export function removeFromCart(userId, itemId) {
+  const items = getCartItems(userId).filter((i) => i.id !== itemId)
+  saveCartItems(userId, items)
   return items
 }
 
-export function updateQuantity(itemId, quantity) {
-  const items = getCartItems()
+export function updateQuantity(userId, itemId, quantity) {
+  const items = getCartItems(userId)
   const it = items.find((i) => i.id === itemId)
   if (it) it.quantity = quantity
-  saveCartItems(items)
+  saveCartItems(userId, items)
   return items
 }

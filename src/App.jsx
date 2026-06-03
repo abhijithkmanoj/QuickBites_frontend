@@ -15,6 +15,14 @@ import CartPage from './routes/CartPage'
 import CheckoutPage from './routes/CheckoutPage'
 import OrderConfirmationPage from './routes/OrderConfirmationPage'
 import OrdersListPage from './routes/OrdersListPage'
+import ActivityPage from './routes/ActivityPage'
+import FavoritesPage from './routes/FavoritesPage'
+
+import AdminUsersPage from './routes/AdminUsersPage'
+import AdminRestaurantsPage from './routes/AdminRestaurantsPage'
+import AdminReviewsPage from './routes/AdminReviewsPage'
+import AdminCouponsPage from './routes/AdminCouponsPage'
+import AdminMonitoringPage from './routes/AdminMonitoringPage'
 import RestaurantDashboardPage from './routes/RestaurantDashboardPage'
 import MenuManagementPage from './routes/MenuManagementPage'
 import NotFoundPage from './routes/NotFoundPage'
@@ -22,17 +30,17 @@ import GlobalLayout from './components/GlobalLayout'
 import ProtectedRoute from './components/ProtectedRoute'
 import ErrorBoundary from './components/ErrorBoundary'
 import { store } from './app/store'
-import { loadUser, refreshSession } from './features/auth/authSlice'
+import { loadUser } from './features/auth/authSlice'
+import { loadAccessToken } from './features/auth/authService'
 
 function AppContent() {
   const dispatch = useDispatch()
   const { accessToken, status } = useSelector((state) => state.auth)
 
   useEffect(() => {
-    if (accessToken) {
+    const token = loadAccessToken()
+    if (token) {
       dispatch(loadUser())
-    } else {
-      dispatch(refreshSession())
     }
   }, [dispatch])
 
@@ -54,6 +62,14 @@ function AppContent() {
               <Route path="orders" element={<OrdersListPage />} />
               <Route path="orders/:id" element={<OrderConfirmationPage />} />
               <Route path="profile" element={<ProfilePage />} />
+              <Route path="activity" element={<ActivityPage />} />
+              <Route path="favorites" element={<FavoritesPage />} />
+              
+              <Route path="admin/users" element={<AdminUsersPage />} />
+              <Route path="admin/restaurants" element={<AdminRestaurantsPage />} />
+              <Route path="admin/reviews" element={<AdminReviewsPage />} />
+              <Route path="admin/coupons" element={<AdminCouponsPage />} />
+              <Route path="admin/monitoring" element={<AdminMonitoringPage />} />
               <Route path="restaurant-owner/dashboard" element={<RestaurantDashboardPage />} />
               <Route path="restaurant-owner/menu" element={<MenuManagementPage />} />
             </Route>
