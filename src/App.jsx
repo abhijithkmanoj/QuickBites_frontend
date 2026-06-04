@@ -25,6 +25,9 @@ import AdminCouponsPage from './routes/AdminCouponsPage'
 import AdminMonitoringPage from './routes/AdminMonitoringPage'
 import RestaurantDashboardPage from './routes/RestaurantDashboardPage'
 import MenuManagementPage from './routes/MenuManagementPage'
+import OwnerOnboardingPage from './routes/OwnerOnboardingPage'
+import DeliveryPartnerOnboardingPage from './routes/DeliveryPartnerOnboardingPage'
+import DeliveryPartnerDashboardPage from './routes/DeliveryPartnerDashboardPage'
 import NotFoundPage from './routes/NotFoundPage'
 import GlobalLayout from './components/GlobalLayout'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -70,8 +73,11 @@ function AppContent() {
               <Route path="admin/reviews" element={<AdminReviewsPage />} />
               <Route path="admin/coupons" element={<AdminCouponsPage />} />
               <Route path="admin/monitoring" element={<AdminMonitoringPage />} />
+              <Route path="restaurant-owner/onboard" element={<OwnerOnboardingPage />} />
               <Route path="restaurant-owner/dashboard" element={<RestaurantDashboardPage />} />
               <Route path="restaurant-owner/menu" element={<MenuManagementPage />} />
+              <Route path="delivery-partner/onboard" element={<DeliveryPartnerOnboardingPage />} />
+              <Route path="delivery-partner/dashboard" element={<DeliveryPartnerDashboardPage />} />
             </Route>
             <Route path="*" element={<NotFoundPage />} />
           </Route>

@@ -27,7 +27,9 @@ export default function MenuItemCard({ item }) {
 
   useEffect(() => {
     if (user?.id) {
-      const current = getCartItems(user.id).find((cartItem) => cartItem.id === item.id)
+      const current = getCartItems(user.id).find((cartItem) => 
+        cartItem.id === item.id || cartItem.menu_item_id === item.id
+      )
       setAdded(Boolean(current))
     }
   }, [item.id, user?.id, status])

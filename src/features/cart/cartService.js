@@ -11,7 +11,7 @@ export async function syncLocalCart(userId) {
       await apiClient.post('/cart/add', {
         restaurant_id: it.restaurant_id,
         item: {
-          menu_item_id: it.id || null,
+          menu_item_id: it.menu_item_id || it.id || null,
           name: it.name,
           price: it.price,
           quantity: it.quantity || 1,
@@ -48,7 +48,15 @@ export async function addItem(userId, item) {
     })
     const cart = resp.data
     // sync local storage to server
-    saveCartItems(userId, cart.items.map((i) => ({ id: i.id, restaurant_id: cart.restaurant_id, name: i.name, price: i.price, quantity: i.quantity })))
+    saveCartItems(userId, cart.items.map((i) => ({
+      id: i.id,
+      restaurant_id: cart.restaurant_id,
+      name: i.name,
+      price: i.price,
+      quantity: i.quantity,
+      menu_item_id: i.menu_item_id || null,
+      image_url: item.image_url || null,
+    })))
     return cart
   } catch (err) {
     // on failure, caller should fallback to local
@@ -60,10 +68,16 @@ export async function updateItem(userId, itemId, quantity) {
   try {
     const resp = await apiClient.put(`/cart/item/${itemId}`, { quantity })
     // update local copy
-    const updated = resp.data
     const cartResp = await apiClient.get('/cart')
-    saveCartItems(userId, cartResp.data.items.map((i) => ({ id: i.id, restaurant_id: cartResp.data.restaurant_id, name: i.name, price: i.price, quantity: i.quantity })))
-    return updated
+    saveCartItems(userId, cartResp.data.items.map((i) => ({
+      id: i.id,
+      restaurant_id: cartResp.data.restaurant_id,
+      name: i.name,
+      price: i.price,
+      quantity: i.quantity,
+      menu_item_id: i.menu_item_id || null,
+    })))
+    return resp.data
   } catch (err) {
     throw err
   }
@@ -73,7 +87,14 @@ export async function removeItem(userId, itemId) {
   try {
     await apiClient.delete(`/cart/item/${itemId}`)
     const cartResp = await apiClient.get('/cart')
-    saveCartItems(userId, cartResp.data.items.map((i) => ({ id: i.id, restaurant_id: cartResp.data.restaurant_id, name: i.name, price: i.price, quantity: i.quantity })))
+    saveCartItems(userId, cartResp.data.items.map((i) => ({
+      id: i.id,
+      restaurant_id: cartResp.data.restaurant_id,
+      name: i.name,
+      price: i.price,
+      quantity: i.quantity,
+      menu_item_id: i.menu_item_id || null,
+    })))
   } catch (err) {
     throw err
   }

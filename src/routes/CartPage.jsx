@@ -39,6 +39,11 @@ export default function CartPage() {
 
   const refreshLocal = () => setItems(getCartItems(userId))
 
+  useEffect(() => {
+    // Load local cart when user changes or on mount
+    refreshLocal()
+  }, [userId])
+
   const handleUpdate = async (item, qty) => {
     updateQuantity(userId, item.id, qty)
     refreshLocal()
@@ -107,7 +112,7 @@ export default function CartPage() {
           <div className="flex flex-col items-center gap-4">
             <div className="h-12 w-12 text-slate-300">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 11l3-3m0 0l3 3m-3-3v8M5 8h14M5 8a2 2 0 100 4h14a2 2 0 110-4M5 8a2 2 0 110-4h14a2 2 0 110-4z"></path>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 11l3-3m0 0l3 3m-3-3v8M5 8h14M5 8a2 2 0 100 4h14a2 2 0 110-4M5 8a2 2 0 110-4h14a2 2 0 110-4z"></path>
               </svg>
             </div>
             <h3 className="text-xl font-bold text-slate-900">Your cart is empty</h3>
@@ -159,7 +164,7 @@ export default function CartPage() {
             <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
               Order Summary
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3M6 6h12a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2z"></path>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3M6 6h12a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2z"></path>
               </svg>
             </h3>
           </div>
@@ -216,7 +221,7 @@ export default function CartPage() {
           className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
           </svg>
           Home
         </Link>

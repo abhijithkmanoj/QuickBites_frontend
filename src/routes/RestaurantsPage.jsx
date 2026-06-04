@@ -78,7 +78,7 @@ export default function RestaurantsPage() {
           <h1 className="text-3xl font-bold text-slate-900">Restaurants</h1>
           <Link to="/" className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
             </svg>
             Home
           </Link>
@@ -92,7 +92,7 @@ export default function RestaurantsPage() {
             <div className="relative w-full sm:w-1/2">
               <label className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M10.5 10.5h-6a1.5 1.5 0 010-3h6a1.5 1.5 0 010 3z"></path>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M10.5 10.5h-6a1.5 1.5 0 010-3h6a1.5 1.5 0 010 3z"></path>
                 </svg>
               </label>
               <input
@@ -156,7 +156,7 @@ export default function RestaurantsPage() {
           <div className="text-center py-12">
             <div className="h-48 w-48 mx-auto mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 11l3-3m0 0l3 3m-3-3v8M5 8h14M5 8a2 2 0 100 4h14a2 2 0 100-4M5 8a2 2 0 110-4h14a2 2 0 110-4z"></path>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 11l3-3m0 0l3 3m-3-3v8M5 8h14M5 8a2 2 0 100 4h14a2 2 0 100-4M5 8a2 2 0 110-4h14a2 2 0 110-4z"></path>
               </svg>
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-3">No restaurants found</h3>

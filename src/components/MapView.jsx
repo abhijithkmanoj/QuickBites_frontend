@@ -39,7 +39,7 @@ export default function MapView({ center, restaurants = [] }) {
             className="p-2 bg-white rounded-full shadow-md hover:bg-slate-50 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 12m-8 4l1.586-1.586a2 2 0 012.828 0L12 8m-8 4v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2H4a2 2 0 00-2 2z"></path>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 12m-8 4l1.586-1.586a2 2 0 012.828 0L12 8m-8 4v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2H4a2 2 0 00-2 2z"></path>
             </svg>
           </button>
           <button
@@ -50,7 +50,7 @@ export default function MapView({ center, restaurants = [] }) {
             className="p-2 bg-white rounded-full shadow-md hover:bg-slate-50 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3M6 6h12a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2z"></path>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3M6 6h12a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2z"></path>
             </svg>
           </button>
           <button
@@ -61,7 +61,7 @@ export default function MapView({ center, restaurants = [] }) {
             className="p-2 bg-white rounded-full shadow-md hover:bg-slate-50 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4M6 6h12a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2zM16 12h2.586a1 1 0 01.707.293l.707.707a1 1 0 01-.293.707v1.414a1 1 0 01-.707.707l-.707.707a1 1 0 01-.707-.293H16a2 2 0 00-2-2v-2a2 2 0 002-2z"></path>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4M6 6h12a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2zM16 12h2.586a1 1 0 01.707.293l.707.707a1 1 0 01-.293.707v1.414a1 1 0 01-.707.707l-.707.707a1 1 0 01-.707-.293H16a2 2 0 00-2-2v-2a2 2 0 002-2z"></path>
             </svg>
           </button>
         </div>

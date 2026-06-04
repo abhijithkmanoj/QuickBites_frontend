@@ -202,7 +202,7 @@ const authSlice = createSlice({
         state.status = 'succeeded'
         state.user = action.payload.user
         state.accessToken = action.payload.accessToken
-        try { cartService.syncLocalCart() } catch { /* noop */ }
+        try { cartService.syncLocalCart(action.payload.user?.id) } catch { /* noop */ }
       })
       .addCase(loadUser.rejected, (state) => {
         state.status = 'idle'
@@ -217,7 +217,7 @@ const authSlice = createSlice({
         state.status = 'succeeded'
         state.user = action.payload.user
         state.accessToken = action.payload.accessToken
-        try { cartService.syncLocalCart() } catch { /* noop */ }
+        try { cartService.syncLocalCart(action.payload.user?.id) } catch { /* noop */ }
       })
       .addCase(refreshSession.rejected, (state) => {
         state.status = 'idle'

@@ -26,13 +26,18 @@ export function saveCartItems(userId, items) {
 
 export function addToCart(userId, item) {
   const cartItems = getCartItems(userId)
-  const existing = cartItems.find((entry) => entry.id === item.id)
+  const existing = cartItems.find((entry) => 
+    entry.id === item.id || 
+    (entry.menu_item_id && entry.menu_item_id === item.id) ||
+    (item.menu_item_id && entry.menu_item_id === item.menu_item_id)
+  )
 
   if (existing) {
     existing.quantity = (existing.quantity || 1) + (item.quantity || 1)
   } else {
     cartItems.push({
       ...item,
+      menu_item_id: item.menu_item_id || item.id,
       quantity: item.quantity || 1,
     })
   }

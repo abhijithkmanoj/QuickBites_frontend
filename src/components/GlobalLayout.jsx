@@ -51,6 +51,14 @@ export default function GlobalLayout() {
                     Dashboard
                   </Link>
                 )}
+                {user.role === 'delivery_partner' && (
+                  <Link
+                    to="/delivery-partner/dashboard"
+                    className="rounded-full px-3 py-1.5 text-surface-700 transition hover:bg-surface-100 hover:text-surface-900"
+                  >
+                    Dashboard
+                  </Link>
+                )}
                 <Link
                   to="/profile"
                   className="rounded-full px-3 py-1.5 text-surface-700 transition hover:bg-surface-100 hover:text-surface-900"

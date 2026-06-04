@@ -86,8 +86,6 @@ export default function RegisterPage() {
           >
             <option value="customer">Customer</option>
             <option value="restaurant_owner">Restaurant Owner</option>
-            <option value="delivery_partner">Delivery Partner</option>
-            <option value="admin">Admin</option>
           </select>
         </label>
         

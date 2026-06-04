@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux'
 import { Navigate, Outlet } from 'react-router-dom'
 
-export default function ProtectedRoute({ redirectTo = '/login' }) {
+export default function ProtectedRoute({ redirectTo = '/login', requireOwnerVerification = false }) {
   const { user, status } = useSelector((state) => state.auth)
 
   if (status === 'loading') {
@@ -10,6 +10,11 @@ export default function ProtectedRoute({ redirectTo = '/login' }) {
 
   if (!user) {
     return <Navigate to={redirectTo} replace />
+  }
+
+  // Restaurant owners must complete onboarding before accessing dashboard
+  if (requireOwnerVerification && user.role === 'restaurant_owner') {
+    return <Navigate to="/restaurant-owner/onboard" replace />
   }
 
   return <Outlet />

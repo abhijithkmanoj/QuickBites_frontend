@@ -359,12 +359,29 @@ export default function RestaurantDashboardPage() {
   const { user } = useSelector((state) => state.auth)
   const [dashboard, setDashboard] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [ownerProfile, setOwnerProfile] = useState(null)
+  const [profileLoading, setProfileLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('incoming')
   const [rejectTarget, setRejectTarget] = useState(null)
   const [viewMode, setViewMode] = useState('list') // 'list' | 'kitchen'
   const [confirmAction, setConfirmAction] = useState(null)
   const [processingAction, setProcessingAction] = useState(false)
   const prevIncomingCount = useRef(0)
+
+  // Check if owner has completed onboarding
+  useEffect(() => {
+    if (user?.role === 'restaurant_owner') {
+apiClient
+         .get('/owner/profile')
+        .then((res) => {
+          setOwnerProfile(res.data)
+        })
+        .catch(() => setOwnerProfile(null))
+        .finally(() => setProfileLoading(false))
+    } else {
+      setProfileLoading(false)
+    }
+  }, [user])
 
   const fetchDashboard = useCallback(async () => {
     try {
@@ -445,6 +462,32 @@ export default function RestaurantDashboardPage() {
   // Open confirm dialog for kitchen card status change
   const requestStatusChange = (order, newStatus, label) => {
     setConfirmAction({ order, newStatus, label })
+  }
+
+  // Check if owner needs to complete onboarding
+  if (profileLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="text-slate-500">Loading...</div>
+      </div>
+    )
+  }
+
+  if (!ownerProfile || ownerProfile.verification_status !== 'approved') {
+    return (
+      <div className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+        <h1 className="text-xl font-semibold text-slate-900">Restaurant Owner Onboarding Required</h1>
+        <p className="mt-3 text-slate-500">
+          Complete your business verification to access the dashboard.
+        </p>
+        <Link
+          to="/restaurant-owner/onboard"
+          className="mt-4 inline-flex rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700"
+        >
+          Complete Onboarding
+        </Link>
+      </div>
+    )
   }
 
   if (loading) {
