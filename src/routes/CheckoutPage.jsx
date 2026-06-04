@@ -77,7 +77,7 @@ export default function CheckoutPage() {
         payment_method: 'cod',
       })
       const order = resp.data
-      clearCart()
+      clearCart(user?.id)
       toast.success('Order placed successfully!')
       navigate(`/orders/${order.id}`)
     } catch (err) {

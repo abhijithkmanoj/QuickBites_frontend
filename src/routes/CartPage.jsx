@@ -4,6 +4,7 @@ import { getCartItems, removeFromCart, updateQuantity, clearCart } from '../lib/
 import cartService from '../features/cart/cartService'
 import { toast } from 'react-toastify'
 import { useSelector } from 'react-redux'
+import { loadAccessToken } from '../features/auth/authService'
 
 function CartItemRow({ item, onRemove, onUpdate, userId }) {
   return (
@@ -91,20 +92,33 @@ export default function CartPage() {
       )
     }
 
-    if (!user) {
-      return (
-        <div className="mt-6 text-center">
-          <p className="text-slate-600">Please log in to view your cart.</p>
-          <Link 
-            to="/login" 
-            className="mt-4 inline-flex px-6 py-3 bg-brand-600 text-white font-medium 
-                       rounded-xl hover:bg-brand-700 transition-transform transform hover:-translate-y-1 shadow-md"
-          >
-            Log in
-          </Link>
+    const token = loadAccessToken()
+
+  if (!user && token) {
+    return (
+      <div className="mt-6 text-center">
+        <div className="flex flex-col items-center gap-2">
+          <div className="h-8 w-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin"></div>
+          <p>Loading your cart...</p>
         </div>
-      )
-    }
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="mt-6 text-center">
+        <p className="text-slate-600">Please log in to view your cart.</p>
+        <Link 
+          to="/login" 
+          className="mt-4 inline-flex px-6 py-3 bg-brand-600 text-white font-medium 
+                     rounded-xl hover:bg-brand-700 transition-transform transform hover:-translate-y-1 shadow-md"
+        >
+          Log in
+        </Link>
+      </div>
+    )
+  }
 
     if (items.length === 0) {
       return (

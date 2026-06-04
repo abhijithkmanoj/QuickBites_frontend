@@ -37,17 +37,20 @@ export default function MenuItemCard({ item }) {
   const handleAddToCart = async () => {
     if (!user?.id || adding) return
 
+    if (!item.restaurant_id) {
+      toast.error('Unable to add item to cart: restaurant information is missing.')
+      return
+    }
+
+    const currentCart = getCartItems(user.id)
+    const currentRestaurantId = currentCart?.[0]?.restaurant_id
+    if (currentRestaurantId && currentRestaurantId !== item.restaurant_id) {
+      toast.error('Your cart already contains items from another restaurant. Clear your cart before adding this item.')
+      return
+    }
+
     setAdding(true)
     try {
-      const local = addToCart(user.id, {
-        id: item.id,
-        restaurant_id: item.restaurant_id,
-        name: item.name,
-        price: item.price,
-        image_url: item.image_url,
-        quantity: 1,
-      })
-
       await cartService.addItem(user.id, {
         id: item.id,
         restaurant_id: item.restaurant_id,
@@ -58,10 +61,11 @@ export default function MenuItemCard({ item }) {
 
       setAdded(true)
       toast.success(`${item.name} added to cart.`)
-      return local
     } catch (err) {
       setAdded(false)
-      toast.error('Could not add to cart. Please try again.')
+      const message = err?.response?.data?.detail || err?.message || 'Could not add to cart. Please try again.'
+      toast.error(message)
+      console.error('Add to cart failed:', err)
     } finally {
       setAdding(false)
     }

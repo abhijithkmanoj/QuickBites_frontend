@@ -7,6 +7,8 @@ export async function syncLocalCart(userId) {
 
   try {
     // Post each item to server; server will create cart on first add
+    // Throttle requests slightly to avoid development rate limits
+    const sleep = (ms) => new Promise((res) => setTimeout(res, ms))
     for (const it of local) {
       await apiClient.post('/cart/add', {
         restaurant_id: it.restaurant_id,
@@ -17,6 +19,8 @@ export async function syncLocalCart(userId) {
           quantity: it.quantity || 1,
         },
       })
+      // small pause between requests
+      await sleep(150)
     }
 
     // replace local cache with server canonical cart

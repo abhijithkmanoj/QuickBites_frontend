@@ -6,12 +6,40 @@ export function resolveStorageKey(userId) {
   return `quickbites_cart:${userId}`
 }
 
+function normalizeCartItem(item) {
+  return {
+    id: item?.id || null,
+    restaurant_id: item?.restaurant_id || null,
+    menu_item_id: item?.menu_item_id || item?.id || null,
+    name: item?.name || '',
+    price: Number(item?.price || 0),
+    quantity: Number(item?.quantity || 1),
+    image_url: item?.image_url || null,
+  }
+}
+
+function isValidCartItem(item) {
+  return (
+    item &&
+    typeof item.name === 'string' &&
+    item.name.trim() !== '' &&
+    typeof item.price === 'number' &&
+    !Number.isNaN(item.price) &&
+    item.price >= 0 &&
+    typeof item.quantity === 'number' &&
+    !Number.isNaN(item.quantity) &&
+    item.quantity > 0
+  )
+}
+
 export function getCartItems(userId) {
   if (typeof window === 'undefined') {
     return []
   }
   try {
-    return JSON.parse(window.localStorage.getItem(resolveStorageKey(userId)) || '[]')
+    const raw = JSON.parse(window.localStorage.getItem(resolveStorageKey(userId)) || '[]')
+    if (!Array.isArray(raw)) return []
+    return raw.map(normalizeCartItem).filter(isValidCartItem)
   } catch (error) {
     return []
   }
@@ -21,7 +49,10 @@ export function saveCartItems(userId, items) {
   if (typeof window === 'undefined') {
     return
   }
-  window.localStorage.setItem(resolveStorageKey(userId), JSON.stringify(items))
+  const sanitized = Array.isArray(items)
+    ? items.map(normalizeCartItem).filter(isValidCartItem)
+    : []
+  window.localStorage.setItem(resolveStorageKey(userId), JSON.stringify(sanitized))
 }
 
 export function addToCart(userId, item) {
