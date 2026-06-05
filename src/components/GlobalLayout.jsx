@@ -12,6 +12,8 @@ export default function GlobalLayout() {
     navigate('/login')
   }
 
+  const showCustomerNav = !user || user.role === 'customer'
+
   return (
     <div className="min-h-screen bg-surface-50 text-surface-900">
       <header className="sticky top-0 z-20 border-b border-surface-200 bg-white/85 backdrop-blur">
@@ -23,40 +25,46 @@ export default function GlobalLayout() {
             QuickBites
           </Link>
           <nav className="flex flex-wrap items-center gap-4 text-sm font-medium">
-            <Link
-              to="/"
-              className="rounded-full px-3 py-1.5 text-surface-700 transition hover:bg-surface-100 hover:text-surface-900"
-            >
-              Home
-            </Link>
-            <Link
-              to="/restaurants"
-              className="rounded-full px-3 py-1.5 text-surface-700 transition hover:bg-surface-100 hover:text-surface-900"
-            >
-              Restaurants
-            </Link>
-            <Link
-              to="/cart"
-              className="rounded-full px-3 py-1.5 text-surface-700 transition hover:bg-surface-100 hover:text-surface-900"
-            >
-              Cart
-            </Link>
+            {showCustomerNav && (
+              <>
+                <Link
+                  to="/"
+                  className="rounded-full px-3 py-1.5 text-surface-700 transition hover:bg-surface-100 hover:text-surface-900"
+                >
+                  Home
+                </Link>
+                <Link
+                  to="/restaurants"
+                  className="rounded-full px-3 py-1.5 text-surface-700 transition hover:bg-surface-100 hover:text-surface-900"
+                >
+                  Restaurants
+                </Link>
+                <Link
+                  to="/cart"
+                  className="rounded-full px-3 py-1.5 text-surface-700 transition hover:bg-surface-100 hover:text-surface-900"
+                >
+                  Cart
+                </Link>
+              </>
+            )}
             {user ? (
               <>
                 {user.role === 'restaurant_owner' && (
-                  <Link
-                    to="/restaurant-owner/dashboard"
-                    className="rounded-full px-3 py-1.5 text-surface-700 transition hover:bg-surface-100 hover:text-surface-900"
-                  >
-                    Dashboard
-                  </Link>
+                  <>
+                    <Link
+                      to="/restaurant-owner/dashboard"
+                      className="rounded-full px-3 py-1.5 text-surface-700 transition hover:bg-surface-100 hover:text-surface-900"
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      to="/restaurant-owner/menu"
+                      className="rounded-full px-3 py-1.5 text-surface-700 transition hover:bg-surface-100 hover:text-surface-900"
+                    >
+                      Menu
+                    </Link>
+                  </>
                 )}
-                <Link
-                  to="/orders"
-                  className="rounded-full px-3 py-1.5 text-surface-700 transition hover:bg-surface-100 hover:text-surface-900"
-                >
-                  Orders
-                </Link>
                 {user.role === 'delivery_partner' && (
                   <Link
                     to="/delivery-partner/dashboard"
@@ -64,6 +72,30 @@ export default function GlobalLayout() {
                   >
                     Dashboard
                   </Link>
+                )}
+                {user.role === 'customer' && (
+                  <Link
+                    to="/orders"
+                    className="rounded-full px-3 py-1.5 text-surface-700 transition hover:bg-surface-100 hover:text-surface-900"
+                  >
+                    Orders
+                  </Link>
+                )}
+                {user.role === 'admin' && (
+                  <>
+                    <Link
+                      to="/admin/restaurants"
+                      className="rounded-full px-3 py-1.5 text-surface-700 transition hover:bg-surface-100 hover:text-surface-900"
+                    >
+                      Admin Restaurants
+                    </Link>
+                    <Link
+                      to="/admin/owners"
+                      className="rounded-full px-3 py-1.5 text-surface-700 transition hover:bg-surface-100 hover:text-surface-900"
+                    >
+                      Owner Approvals
+                    </Link>
+                  </>
                 )}
                 <Link
                   to="/profile"

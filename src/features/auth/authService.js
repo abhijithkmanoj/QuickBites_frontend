@@ -44,7 +44,26 @@ export const registerRequest = async (userData) => {
 
 export const fetchCurrentUser = async () => {
   const response = await apiClient.get('/auth/me')
-  return response.data
+  const currentUser = response.data
+
+  if (currentUser?.role === 'restaurant_owner') {
+    try {
+      const statusResponse = await apiClient.get('/owner/verification-status')
+      return {
+        ...currentUser,
+        ownerVerificationStatus: statusResponse.data.status,
+        ownerVerificationRejectionReason: statusResponse.data.rejection_reason,
+      }
+    } catch (error) {
+      return {
+        ...currentUser,
+        ownerVerificationStatus: null,
+        ownerVerificationRejectionReason: null,
+      }
+    }
+  }
+
+  return currentUser
 }
 
 export const refreshAccessToken = async () => {

@@ -33,6 +33,11 @@ export default function OwnerOnboardingPage() {
     apiClient
       .get('/owner/profile')
       .then((res) => {
+        if (res.data.verification_status === 'approved') {
+          navigate('/restaurant-owner/dashboard')
+          return
+        }
+
         setExistingProfile(res.data)
         setForm({
           business_name: res.data.business_name || '',
