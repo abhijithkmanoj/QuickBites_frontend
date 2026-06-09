@@ -26,8 +26,15 @@ export default function AIChatPanel() {
       const reply = resp.data?.reply || 'No response received.'
       setMessages((prev) => [...prev, { role: 'assistant', content: reply }])
     } catch (err) {
-      const detail = err?.response?.data?.detail || 'Sorry, I had trouble connecting. Please try again.'
-      setMessages((prev) => [...prev, { role: 'assistant', content: detail }])
+      const status = err?.response?.status
+      if (status === 401) {
+        setMessages((prev) => [...prev, { role: 'assistant', content: 'Please log in again to use the AI assistant.' }])
+      } else if (status === 429 || err?.response?.data?.reply?.includes('usage limit')) {
+        setMessages((prev) => [...prev, { role: 'assistant', content: 'The AI assistant is temporarily unavailable. Please try again later.' }])
+      } else {
+        const detail = err?.response?.data?.detail || 'Sorry, I had trouble connecting. Please try again.'
+        setMessages((prev) => [...prev, { role: 'assistant', content: detail }])
+      }
     } finally {
       setLoading(false)
     }
