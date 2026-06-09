@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../features/auth/authSlice'
 import NotificationToast from './notifications/NotificationToast'
 import NotificationBell from './notifications/NotificationBell'
+import AIChatPanel from './chat/AIChatPanel'
 
 export default function GlobalLayout() {
   const dispatch = useDispatch()
@@ -137,6 +138,7 @@ export default function GlobalLayout() {
         <Outlet />
       </main>
       <NotificationToast />
+      <AIChatPanel />
       <footer className="border-t border-surface-200 bg-white/85 py-6 text-center text-sm text-surface-500">
         <span className="font-semibold text-brand-600">QuickBites</span>
         <span className="mx-2">·</span>
