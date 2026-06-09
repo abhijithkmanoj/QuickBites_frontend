@@ -1,6 +1,8 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../features/auth/authSlice'
+import NotificationToast from './notifications/NotificationToast'
+import NotificationBell from './notifications/NotificationBell'
 
 export default function GlobalLayout() {
   const dispatch = useDispatch()
@@ -103,6 +105,7 @@ export default function GlobalLayout() {
                 >
                   Profile
                 </Link>
+                <NotificationBell />
                 <button
                   type="button"
                   onClick={handleLogout}
@@ -133,6 +136,7 @@ export default function GlobalLayout() {
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <Outlet />
       </main>
+      <NotificationToast />
       <footer className="border-t border-surface-200 bg-white/85 py-6 text-center text-sm text-surface-500">
         <span className="font-semibold text-brand-600">QuickBites</span>
         <span className="mx-2">·</span>

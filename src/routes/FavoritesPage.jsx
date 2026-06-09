@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import authService from '../features/auth/authService'
 
@@ -48,9 +48,9 @@ export default function FavoritesPage() {
 
   const handleNavigateToItem = (favoriteType, favoriteId) => {
     if (favoriteType === 'restaurant') {
-      navigate(`/restaurant/${favoriteId}`)
+      navigate(`/restaurants/${favoriteId}`)
     } else if (favoriteType === 'menu_item') {
-      navigate(`/menu-item/${favoriteId}`)
+      navigate(`/restaurants?item=${favoriteId}`)
     }
   }
 
@@ -61,145 +61,154 @@ export default function FavoritesPage() {
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">My Favorites</h1>
-          <p className="text-slate-600">Your saved restaurants and menu items</p>
-        </div>
+    <div className="mx-auto max-w-4xl space-y-6">
+      <div className="rounded-3xl border border-surface-200 bg-white p-6 shadow-sm">
+        <h1 className="text-3xl font-semibold text-surface-900">My Favorites</h1>
+        <p className="mt-2 text-sm text-surface-500">Your saved restaurants and menu items</p>
+      </div>
 
-        {/* Filter */}
-        <div className="mb-6 flex gap-2">
-          <button
-            onClick={() => { setFilterType(null); setPage(0) }}
-            className={`px-4 py-2 rounded-lg transition ${
-              filterType === null
-                ? 'bg-brand-600 text-white'
-                : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-            }`}
-          >
-            All
-          </button>
-          <button
-            onClick={() => { setFilterType('restaurant'); setPage(0) }}
-            className={`px-4 py-2 rounded-lg transition ${
-              filterType === 'restaurant'
-                ? 'bg-brand-600 text-white'
-                : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-            }`}
-          >
-            🏪 Restaurants
-          </button>
-          <button
-            onClick={() => { setFilterType('menu_item'); setPage(0) }}
-            className={`px-4 py-2 rounded-lg transition ${
-              filterType === 'menu_item'
-                ? 'bg-brand-600 text-white'
-                : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-            }`}
-          >
-            🍽️ Menu Items
-          </button>
-          <button
-            onClick={loadFavorites}
-            disabled={loading}
-            className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 disabled:opacity-50 transition ml-auto"
-          >
-            {loading ? 'Loading...' : 'Refresh'}
-          </button>
-        </div>
+      {/* Filters */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => { setFilterType(null); setPage(0) }}
+          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+            filterType === null
+              ? 'bg-brand-600 text-white shadow-sm'
+              : 'bg-surface-100 text-surface-700 hover:bg-surface-200'
+          }`}
+        >
+          All
+        </button>
+        <button
+          onClick={() => { setFilterType('restaurant'); setPage(0) }}
+          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+            filterType === 'restaurant'
+              ? 'bg-brand-600 text-white shadow-sm'
+              : 'bg-surface-100 text-surface-700 hover:bg-surface-200'
+          }`}
+        >
+          🏪 Restaurants
+        </button>
+        <button
+          onClick={() => { setFilterType('menu_item'); setPage(0) }}
+          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+            filterType === 'menu_item'
+              ? 'bg-brand-600 text-white shadow-sm'
+              : 'bg-surface-100 text-surface-700 hover:bg-surface-200'
+          }`}
+        >
+          🍽️ Menu Items
+        </button>
+        <button
+          onClick={loadFavorites}
+          disabled={loading}
+          className="ml-auto rounded-full border border-surface-200 px-4 py-2 text-sm font-medium text-surface-700 hover:bg-surface-50 disabled:opacity-50 transition"
+        >
+          {loading ? 'Loading...' : 'Refresh'}
+        </button>
+      </div>
 
-        {/* Favorites Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {favorites.length === 0 ? (
-            <div className="col-span-full text-center py-12 bg-white rounded-lg border border-slate-200">
-              <p className="text-slate-500 text-lg">
-                {filterType
-                  ? `No ${filterType === 'restaurant' ? 'restaurants' : 'menu items'} favorited yet`
-                  : 'No favorites saved yet'}
-              </p>
-              <p className="text-slate-400 mt-2">
-                Start by adding restaurants or menu items to your favorites!
-              </p>
-            </div>
-          ) : (
-            favorites.map((favorite) => (
+      {/* Loading State */}
+      {loading ? (
+        <div className="rounded-3xl border border-surface-200 bg-white p-8 text-center text-sm text-surface-500">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent"></div>
+            <p>Loading favorites...</p>
+          </div>
+        </div>
+      ) : favorites.length === 0 ? (
+        <div className="rounded-3xl border border-dashed border-surface-300 bg-surface-50 p-12 text-center">
+          <p className="text-lg font-medium text-surface-900">
+            {filterType
+              ? `No ${filterType === 'restaurant' ? 'restaurants' : 'menu items'} favorited yet`
+              : 'No favorites saved yet'}
+          </p>
+          <p className="mt-2 text-sm text-surface-500">
+            Browse restaurants and tap the heart icon to save your favorites.
+          </p>
+          <Link
+            to="/restaurants"
+            className="mt-6 inline-flex rounded-full bg-surface-900 px-5 py-3 text-sm font-semibold text-white hover:bg-surface-800 transition"
+          >
+            Browse Restaurants
+          </Link>
+        </div>
+      ) : (
+        <>
+          {/* Favorites Grid */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            {favorites.map((favorite) => (
               <div
                 key={favorite.id}
-                className="bg-white rounded-lg border border-slate-200 p-5 hover:shadow-lg transition cursor-pointer group"
+                className="group rounded-3xl border border-surface-200 bg-white p-6 shadow-sm transition hover:shadow-md"
               >
+                <div className="flex items-center justify-between mb-4">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-lg">
+                    {getFavoriteBadge(favorite.favorite_type)}
+                  </span>
+                  <span className="rounded-full bg-surface-100 px-3 py-1 text-xs font-medium text-surface-600">
+                    {favorite.favorite_type === 'restaurant' ? 'Restaurant' : 'Menu Item'}
+                  </span>
+                </div>
                 <div
-                  onClick={() =>
-                    handleNavigateToItem(favorite.favorite_type, favorite.favorite_id)
-                  }
-                  className="mb-4"
+                  onClick={() => handleNavigateToItem(favorite.favorite_type, favorite.favorite_id)}
+                  className="cursor-pointer"
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-3xl">
-                      {getFavoriteBadge(favorite.favorite_type)}
-                    </span>
-                    <span className="text-xs text-slate-400">
-                      {favorite.favorite_type === 'restaurant' ? 'Restaurant' : 'Menu Item'}
-                    </span>
-                  </div>
-                  <h3 className="font-semibold text-slate-900 group-hover:text-brand-600 transition line-clamp-2">
+                  <h3 className="font-semibold text-surface-900 group-hover:text-brand-600 transition line-clamp-2">
                     {favorite.favorite_id}
                   </h3>
-                  <p className="text-sm text-slate-500 mt-2">
-                    Saved {new Date(favorite.created_at).toLocaleDateString()}
+                  <p className="mt-1 text-xs text-surface-500">
+                    Saved on {new Date(favorite.created_at).toLocaleDateString('en-IN', {
+                      day: 'numeric', month: 'short', year: 'numeric'
+                    })}
                   </p>
                 </div>
-
-                <div className="flex gap-2">
+                <div className="mt-4 flex gap-2">
                   <button
-                    onClick={() =>
-                      handleNavigateToItem(favorite.favorite_type, favorite.favorite_id)
-                    }
-                    className="flex-1 px-3 py-2 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 transition text-sm font-medium"
+                    onClick={() => handleNavigateToItem(favorite.favorite_type, favorite.favorite_id)}
+                    className="flex-1 rounded-full bg-brand-600 px-4 py-2 text-xs font-semibold text-white hover:bg-brand-700 transition"
                   >
                     View
                   </button>
                   <button
                     onClick={() => handleRemoveFavorite(favorite.id)}
-                    className="flex-1 px-3 py-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-red-100 hover:text-red-600 transition text-sm font-medium"
+                    className="flex-1 rounded-full border border-surface-200 px-4 py-2 text-xs font-semibold text-surface-700 hover:border-rose-300 hover:text-rose-600 hover:bg-rose-50 transition"
                   >
                     Remove
                   </button>
                 </div>
               </div>
-            ))
-          )}
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-8 flex gap-2 justify-center items-center">
-            <button
-              onClick={() => setPage(Math.max(0, page - 1))}
-              disabled={page === 0}
-              className="px-3 py-2 bg-slate-200 text-slate-700 rounded disabled:opacity-50 transition"
-            >
-              Previous
-            </button>
-            <span className="text-slate-600">
-              Page {page + 1} of {totalPages}
-            </span>
-            <button
-              onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
-              disabled={page >= totalPages - 1}
-              className="px-3 py-2 bg-slate-200 text-slate-700 rounded disabled:opacity-50 transition"
-            >
-              Next
-            </button>
+            ))}
           </div>
-        )}
 
-        {/* Total Count */}
-        <div className="mt-8 text-center text-slate-600">
-          <p>{total} total favorite{total !== 1 ? 's' : ''}</p>
-        </div>
-      </div>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 pt-4">
+              <button
+                onClick={() => setPage(Math.max(0, page - 1))}
+                disabled={page === 0}
+                className="rounded-full border border-surface-200 px-4 py-2 text-sm font-medium text-surface-700 hover:bg-surface-50 disabled:opacity-50 transition"
+              >
+                Previous
+              </button>
+              <span className="text-sm text-surface-500">
+                Page {page + 1} of {totalPages}
+              </span>
+              <button
+                onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+                disabled={page >= totalPages - 1}
+                className="rounded-full border border-surface-200 px-4 py-2 text-sm font-medium text-surface-700 hover:bg-surface-50 disabled:opacity-50 transition"
+              >
+                Next
+              </button>
+            </div>
+          )}
+
+          <p className="text-center text-xs text-surface-400">
+            {total} favorite{total !== 1 ? 's' : ''} total
+          </p>
+        </>
+      )}
     </div>
   )
 }

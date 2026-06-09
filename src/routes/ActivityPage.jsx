@@ -66,103 +66,116 @@ export default function ActivityPage() {
     return icons[activityType] || '📝'
   }
 
-  const formatDateTime = (dateString) => {
-    return new Date(dateString).toLocaleString()
-  }
-
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">
-      <div className="max-w-3xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Activity Log</h1>
-          <p className="text-slate-600">Track your recent actions and activities</p>
-        </div>
+    <div className="mx-auto max-w-3xl space-y-6">
+      <div className="rounded-3xl border border-surface-200 bg-white p-6 shadow-sm">
+        <h1 className="text-3xl font-semibold text-surface-900">Activity Log</h1>
+        <p className="mt-2 text-sm text-surface-500">Track your recent actions and activities.</p>
+      </div>
 
-        {/* Actions */}
-        <div className="mb-6 flex gap-2">
-          <button
-            onClick={loadActivities}
-            disabled={loading}
-            className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 transition"
-          >
-            {loading ? 'Loading...' : 'Refresh'}
-          </button>
-          <button
-            onClick={handleClearOldActivities}
-            className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition"
-          >
-            Clear Old
-          </button>
-        </div>
+      {/* Actions */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={loadActivities}
+          disabled={loading}
+          className="rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50 transition"
+        >
+          {loading ? 'Loading...' : 'Refresh'}
+        </button>
+        <button
+          onClick={handleClearOldActivities}
+          className="rounded-full border border-surface-200 px-5 py-2.5 text-sm font-semibold text-surface-700 hover:bg-surface-50 transition"
+        >
+          Clear Old
+        </button>
+      </div>
 
-        {/* Activity List */}
-        <div className="space-y-4">
-          {activities.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-lg border border-slate-200">
-              <p className="text-slate-500">No activities recorded yet</p>
-            </div>
-          ) : (
-            activities.map((activity) => (
+      {/* Loading State */}
+      {loading ? (
+        <div className="rounded-3xl border border-surface-200 bg-white p-8 text-center text-sm text-surface-500">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent"></div>
+            <p>Loading activity log...</p>
+          </div>
+        </div>
+      ) : activities.length === 0 ? (
+        <div className="rounded-3xl border border-dashed border-surface-300 bg-surface-50 p-12 text-center">
+          <p className="text-lg font-medium text-surface-900">No activities recorded yet</p>
+          <p className="mt-2 text-sm text-surface-500">
+            Your actions like orders, searches, and logins will appear here.
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* Activity List */}
+          <div className="space-y-3">
+            {activities.map((activity) => (
               <div
                 key={activity.id}
-                className="bg-white rounded-lg border border-slate-200 p-4 hover:shadow-md transition flex items-center justify-between"
+                className="group rounded-3xl border border-surface-200 bg-white p-5 shadow-sm transition hover:shadow-md"
               >
-                <div className="flex items-center gap-4 flex-1">
-                  <div className="text-2xl">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-50 text-lg">
                     {getActivityIcon(activity.activity_type)}
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-slate-900 capitalize">
-                      {activity.activity_type}
-                    </h3>
-                    <p className="text-sm text-slate-500">
-                      {formatDateTime(activity.created_at)}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="font-semibold text-surface-900 capitalize truncate">
+                        {activity.activity_type.replace('_', ' ')}
+                      </h3>
+                      <button
+                        onClick={() => handleDeleteActivity(activity.id)}
+                        className="flex-shrink-0 rounded-full p-1.5 text-surface-400 opacity-0 group-hover:opacity-100 hover:text-rose-600 hover:bg-rose-50 transition"
+                        title="Delete activity"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                    <p className="text-xs text-surface-500">
+                      {new Date(activity.created_at).toLocaleDateString('en-IN', {
+                        day: 'numeric', month: 'short', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit',
+                      })}
                     </p>
                     {activity.activity_data && (
-                      <p className="text-sm text-slate-600 mt-1">
-                        {JSON.stringify(activity.activity_data, null, 2).substring(0, 100)}...
+                      <p className="mt-1 text-xs text-surface-400 line-clamp-2">
+                        {JSON.stringify(activity.activity_data).substring(0, 120)}...
                       </p>
                     )}
                   </div>
                 </div>
-                <button
-                  onClick={() => handleDeleteActivity(activity.id)}
-                  className="text-slate-400 hover:text-red-600 transition"
-                  title="Delete activity"
-                >
-                  ✕
-                </button>
               </div>
-            ))
-          )}
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-8 flex gap-2 justify-center items-center">
-            <button
-              onClick={() => setPage(Math.max(0, page - 1))}
-              disabled={page === 0}
-              className="px-3 py-2 bg-slate-200 text-slate-700 rounded disabled:opacity-50 transition"
-            >
-              Previous
-            </button>
-            <span className="text-slate-600">
-              Page {page + 1} of {totalPages}
-            </span>
-            <button
-              onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
-              disabled={page >= totalPages - 1}
-              className="px-3 py-2 bg-slate-200 text-slate-700 rounded disabled:opacity-50 transition"
-            >
-              Next
-            </button>
+            ))}
           </div>
-        )}
-      </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 pt-4">
+              <button
+                onClick={() => setPage(Math.max(0, page - 1))}
+                disabled={page === 0}
+                className="rounded-full border border-surface-200 px-4 py-2 text-sm font-medium text-surface-700 hover:bg-surface-50 disabled:opacity-50 transition"
+              >
+                Previous
+              </button>
+              <span className="text-sm text-surface-500">
+                Page {page + 1} of {totalPages}
+              </span>
+              <button
+                onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+                disabled={page >= totalPages - 1}
+                className="rounded-full border border-surface-200 px-4 py-2 text-sm font-medium text-surface-700 hover:bg-surface-50 disabled:opacity-50 transition"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }

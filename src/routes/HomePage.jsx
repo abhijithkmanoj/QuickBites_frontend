@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import RestaurantCard from '../components/RestaurantCard'
+import DealBanner from '../components/promotions/DealBanner'
 
 export default function HomePage() {
   const handleDemoToast = () => {
@@ -42,8 +43,9 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+        <DealBanner />
 
-      {/* Features Section */}
+        {/* Features Section */}
       <section className="py-12">
         <div className="mx-auto max-w-4xl px-4 lg:px-8">
           <h2 className="text-2xl font-bold text-center text-surface-900 mb-10">
@@ -54,39 +56,27 @@ export default function HomePage() {
               { 
                 title: 'Browse Restaurants', 
                 desc: 'Explore top-rated restaurants near you.', 
-                icon: 'Utensils',
-                bg: 'bg-brand-50',
-                color: 'text-brand-600'
+                icon: '🍴'
               },
               { 
                 title: 'Track Orders', 
                 desc: 'Real-time updates from kitchen to door.', 
-                icon: 'MapPin',
-                bg: 'bg-brand-50',
-                color: 'text-brand-600'
+                icon: '📍'
               },
               { 
                 title: 'Easy Checkout', 
                 desc: 'Fast and secure payments.', 
-                icon: 'CreditCard',
-                bg: 'bg-brand-50',
-                color: 'text-brand-600'
+                icon: '💳'
               },
-            ].map((item) => (
-              <div key={item.title} className="group">
-                <div className="flex h-12 w-12 items-center justify-center mb-4 
-                            rounded-xl 
-                            ${item.bg} 
-                            ${item.color}
-                            group-hover:bg-brand-100/80 
-                            transition-colors duration-300">
-                  {/* Icon would go here - using text for now */}
-                  <span className="text-xl">{item.icon === 'Utensils' ? '🍴' : item.icon === 'MapPin' ? '📍' : '💳'}</span>
+            ].map((item, i) => (
+              <div key={item.title} className="group rounded-2xl bg-white p-6 shadow-soft hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
+                <div className="flex h-12 w-12 items-center justify-center mb-4 rounded-xl bg-brand-50 text-brand-600 group-hover:bg-brand-100 transition-colors duration-300">
+                  <span className="text-xl">{item.icon}</span>
                 </div>
-                <h3 className="text-lg font-medium text-surface-900 mb-2">
+                <h3 className="text-lg font-semibold text-surface-900 mb-2">
                   {item.title}
                 </h3>
-                <p className="text-sm text-surface-600">
+                <p className="text-sm text-surface-500 leading-relaxed">
                   {item.desc}
                 </p>
               </div>

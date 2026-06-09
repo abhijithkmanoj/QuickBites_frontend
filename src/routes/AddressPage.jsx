@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import apiClient from '../lib/axios'
 import { toast } from 'react-toastify'
+import AddressAutocomplete from '../components/common/AddressAutocomplete'
 
 const emptyForm = {
   street: '',
@@ -10,7 +11,13 @@ const emptyForm = {
   postal_code: '',
   phone: '',
   landmark: '',
+  address_line2: '',
+  unit: '',
   is_default: false,
+  latitude: null,
+  longitude: null,
+  formatted_address: '',
+  place_id: '',
 }
 
 export default function AddressPage() {
@@ -51,10 +58,30 @@ export default function AddressPage() {
       postal_code: addr.postal_code || '',
       phone: addr.phone || '',
       landmark: addr.landmark || '',
+      address_line2: addr.address_line2 || '',
+      unit: addr.unit || '',
       is_default: addr.is_default || false,
+      latitude: addr.latitude ?? null,
+      longitude: addr.longitude ?? null,
+      formatted_address: addr.formatted_address || '',
+      place_id: addr.place_id || '',
     })
     setEditingId(addr.id)
     setShowForm(true)
+  }
+
+  function handleAddressSelect(addrObj) {
+    setForm((prev) => ({
+      ...prev,
+      street: addrObj.formatted_address || addrObj.description || prev.street,
+      formatted_address: addrObj.formatted_address || prev.formatted_address,
+      place_id: addrObj.place_id || prev.place_id,
+      latitude: addrObj.lat ?? prev.latitude,
+      longitude: addrObj.lng ?? prev.longitude,
+      city: addrObj.city || prev.city,
+      state: addrObj.state || prev.state,
+      postal_code: addrObj.postal_code || prev.postal_code,
+    }))
   }
 
   function cancelForm() {
@@ -72,11 +99,23 @@ export default function AddressPage() {
     e.preventDefault()
     setSaving(true)
     try {
+      // Sanitize form data: ensure place_id is a string and empty strings become null
+      const sanitized = Object.fromEntries(
+        Object.entries(form).map(([key, value]) => {
+          if (value === "" && key !== "street" && key !== "city" && key !== "state" && key !== "postal_code") {
+            return [key, null]
+          }
+          if (key === "place_id" && value !== null && value !== undefined) {
+            return [key, String(value)]
+          }
+          return [key, value]
+        })
+      )
       if (editingId) {
-        await apiClient.put(`/addresses/${editingId}`, form)
+        await apiClient.put(`/addresses/${editingId}`, sanitized)
         toast.success('Address updated.')
       } else {
-        await apiClient.post('/addresses', form)
+        await apiClient.post('/addresses', sanitized)
         toast.success('Address added.')
       }
       setShowForm(false)
@@ -116,10 +155,19 @@ export default function AddressPage() {
       {showForm && (
         <form onSubmit={handleSave} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="text-xl font-semibold text-slate-900">{editingId ? 'Edit Address' : 'Add New Address'}</h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-slate-700">Street / Building / Apartment</label>
-              <input name="street" value={form.street} onChange={handleChange} required
+              <AddressAutocomplete defaultValue={form.street} onAddressSelect={handleAddressSelect} placeholder="Street / Building / Apartment" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Unit / Flat / Room (optional)</label>
+              <input name="unit" value={form.unit} onChange={handleChange} placeholder="Flat/Room number"
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-slate-400 focus:outline-none" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Address line 2 (optional)</label>
+              <input name="address_line2" value={form.address_line2} onChange={handleChange} placeholder="Apartment, building, floor"
                 className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-slate-400 focus:outline-none" />
             </div>
             <div>
@@ -189,7 +237,7 @@ export default function AddressPage() {
                 </span>
               )}
               <div className="space-y-1 text-sm text-slate-700">
-                <p className="font-medium text-slate-900">{addr.street}</p>
+                <p className="font-medium text-slate-900">{addr.street}{addr.address_line2?`, ${addr.address_line2}`:''}{addr.unit?` (${addr.unit})`:''}</p>
                 <p>{addr.city}, {addr.state} - {addr.postal_code}</p>
                 {addr.landmark && <p className="text-slate-500">Landmark: {addr.landmark}</p>}
                 {addr.phone && <p className="text-slate-500">Phone: {addr.phone}</p>}

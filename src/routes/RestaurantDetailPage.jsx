@@ -70,10 +70,8 @@ export default function RestaurantDetailPage() {
               />
               {/* Status Badge */}
               <div className="absolute top-4 left-4 flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1">
-                <span className="h-2 w-2 rounded-full 
-                            ${restaurant.is_active ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
-                <span className="text-xs font-medium 
-                            ${restaurant.is_active ? 'text-emerald-700' : 'text-rose-700'}">
+                <span className={`h-2 w-2 rounded-full ${restaurant.is_active ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+                <span className={`text-xs font-medium ${restaurant.is_active ? 'text-emerald-700' : 'text-rose-700'}`}>
                   {restaurant.is_active ? 'Open' : 'Closed'}
                 </span>
               </div>

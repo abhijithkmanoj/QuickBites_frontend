@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import apiClient from '../lib/axios'
+import AddressAutocomplete from '../components/common/AddressAutocomplete'
 
 export default function OwnerOnboardingPage() {
   const navigate = useNavigate()
@@ -17,6 +18,11 @@ export default function OwnerOnboardingPage() {
     fssai_license_number: '',
     bank_account_number: '',
     ifsc_code: '',
+    address_description: '',
+    place_id: '',
+    latitude: null,
+    longitude: null,
+    formatted_address: '',
   })
 
   useEffect(() => {
@@ -45,6 +51,11 @@ export default function OwnerOnboardingPage() {
           fssai_license_number: res.data.fssai_license_number || '',
           bank_account_number: res.data.bank_account_number || '',
           ifsc_code: res.data.ifsc_code || '',
+          address_description: res.data.formatted_address || res.data.address_description || '',
+          place_id: res.data.place_id || '',
+          latitude: res.data.latitude || null,
+          longitude: res.data.longitude || null,
+          formatted_address: res.data.formatted_address || '',
         })
       })
       .catch(() => {
@@ -55,6 +66,17 @@ export default function OwnerOnboardingPage() {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
+  }
+
+  const handleAddressSelect = (addr) => {
+    setForm({
+      ...form,
+      address_description: addr.description || addr.formatted_address || '',
+      place_id: addr.place_id || '',
+      latitude: addr.lat ?? form.latitude,
+      longitude: addr.lng ?? form.longitude,
+      formatted_address: addr.formatted_address || addr.description || form.formatted_address,
+    })
   }
 
   const handleSubmit = async (e) => {
@@ -105,6 +127,16 @@ if (existingProfile) {
                 className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
                 placeholder="Enter your restaurant business name"
               />
+            </label>
+            <label className="block">
+              <span className="text-sm font-medium text-slate-700">Business Address</span>
+              <div className="mt-2">
+                <AddressAutocomplete
+                  placeholder="Enter your restaurant address"
+                  defaultValue={form.address_description || form.formatted_address}
+                  onAddressSelect={handleAddressSelect}
+                />
+              </div>
             </label>
             <label className="block">
               <span className="text-sm font-medium text-slate-700">GSTIN (Optional)</span>

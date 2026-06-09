@@ -158,6 +158,14 @@ export default function OrderConfirmationPage() {
             >
               Order Again
             </Link>
+            {(order.status === 'accepted' || order.status === 'picked_up' || order.status === 'out_for_delivery') && (
+              <Link
+                to={`/orders/${order.id}/track`}
+                className="block w-full rounded-full border border-slate-200 px-6 py-3 text-center text-sm font-semibold text-slate-900 hover:bg-slate-50"
+              >
+                Track Order
+              </Link>
+            )}
           </div>
         </aside>
       </div>

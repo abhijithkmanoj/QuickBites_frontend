@@ -10,11 +10,15 @@ export default function RestaurantsPage() {
   const [restaurants, setRestaurants] = useState([])
   const [center, setCenter] = useState(null)
   const [status, setStatus] = useState('')
+  const [sortBy, setSortBy] = useState('rating')
 
   useEffect(() => {
-    // initial list
     fetchRestaurants()
   }, [])
+
+  useEffect(() => {
+    fetchRestaurants()
+  }, [sortBy])
 
   async function fetchRestaurants(params = {}) {
     try {
@@ -142,9 +146,8 @@ export default function RestaurantsPage() {
           <h2 className="text-2xl font-semibold text-slate-900">
             {restaurants.length} {restaurants.length === 1 ? 'restaurant' : 'restaurants'} found
           </h2>
-          <span className="text-sm text-slate-500">
-            Sort by: 
-            <select className="ml-2 px-3 py-1 rounded border-slate-200 focus:outline-none focus:ring-2 focus-ring-brand-400">
+          <span className="text-sm text-slate-500">                          Sort by: 
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="ml-2 px-3 py-1 rounded-xl border-surface-200 bg-white text-sm text-surface-700 focus:outline-none focus:ring-2 focus:ring-brand-400">
               <option value="rating">Rating</option>
               <option value="distance">Distance</option>
               <option value="name">Name (A-Z)</option>

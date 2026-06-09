@@ -14,6 +14,7 @@ import AddressPage from './routes/AddressPage'
 import CartPage from './routes/CartPage'
 import CheckoutPage from './routes/CheckoutPage'
 import OrderConfirmationPage from './routes/OrderConfirmationPage'
+import OrderTrackingPage from './routes/OrderTrackingPage'
 import OrdersListPage from './routes/OrdersListPage'
 import ActivityPage from './routes/ActivityPage'
 import FavoritesPage from './routes/FavoritesPage'
@@ -36,10 +37,14 @@ import ErrorBoundary from './components/ErrorBoundary'
 import { store } from './app/store'
 import { loadUser } from './features/auth/authSlice'
 import { loadAccessToken } from './features/auth/authService'
+import usePushNotifications from './hooks/usePushNotifications'
 
 function AppContent() {
   const dispatch = useDispatch()
   const { accessToken, status } = useSelector((state) => state.auth)
+  const { user } = useSelector((state) => state.auth)
+
+  usePushNotifications(user)
 
   useEffect(() => {
     const token = loadAccessToken()
@@ -68,6 +73,7 @@ function AppContent() {
               <Route path="checkout" element={<CheckoutPage />} />
               <Route path="orders" element={<OrdersListPage />} />
               <Route path="orders/:id" element={<OrderConfirmationPage />} />
+              <Route path="orders/:id/track" element={<OrderTrackingPage />} />
               <Route path="addresses" element={<AddressPage />} />
               <Route path="activity" element={<ActivityPage />} />
               <Route path="favorites" element={<FavoritesPage />} />

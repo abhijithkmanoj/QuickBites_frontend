@@ -213,9 +213,9 @@ export default function CartPage() {
               <button 
                 onClick={() => navigate('/checkout')}
                 disabled={placing}
-                className="w-full px-6 py-3 bg-brand-600 text-white font-medium 
+                className={`w-full px-6 py-3 bg-brand-600 text-white font-medium 
                            rounded-xl hover:bg-brand-700 transition-transform transform hover:-translate-y-1 
-                           shadow-lg hover:shadow-xl ${placing ? 'opacity-70' : ''}"
+                           shadow-lg hover:shadow-xl ${placing ? 'opacity-70' : ''}`}
               >
                 {placing ? 'Placing Order...' : 'Proceed to Checkout'}
               </button>

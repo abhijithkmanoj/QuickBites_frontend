@@ -44,6 +44,10 @@ export const login = createAsyncThunk('auth/login', async ({ email, password }, 
 export const register = createAsyncThunk('auth/register', async (userData, thunkAPI) => {
   try {
     const data = await registerRequest(userData)
+    // If backend returns an access_token, save it for auto-login
+    if (data?.access_token) {
+      saveAccessToken(data.access_token)
+    }
     return data
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data?.detail || 'Registration failed.')
@@ -192,7 +196,12 @@ const authSlice = createSlice({
     // register
     builder
       .addCase(register.pending, (state) => { state.status = 'loading'; state.error = null })
-      .addCase(register.fulfilled, (state) => { state.status = 'succeeded'; state.error = null })
+      .addCase(register.fulfilled, (state, action) => {
+        state.status = 'succeeded'
+        state.user = action.payload.user
+        state.accessToken = action.payload.access_token
+        state.error = null
+      })
       .addCase(register.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload })
 
     // loadUser

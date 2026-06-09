@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import LoyaltyPanel from '../components/loyalty/LoyaltyPanel'
 import {
   loadUser,
   logout,
@@ -262,6 +263,9 @@ function ProfileTab({ user }) {
       </div>
 
       <SaveButton saving={saving} />
+      <div className="mt-6">
+        <LoyaltyPanel />
+      </div>
     </form>
   )
 }
