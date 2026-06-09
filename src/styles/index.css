@@ -1,32 +1,255 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  * {
+    @apply border-surface-200;
+  }
+
   body {
-    @apply bg-surface-50 text-surface-900 antialiased;
-    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    @apply bg-surface-50 text-surface-800 antialiased;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    scroll-behavior: smooth;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply text-surface-900;
+    @apply text-navy-900 font-semibold tracking-tight;
+  }
+
+  ::selection {
+    @apply bg-brand-200 text-navy-900;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-300 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-surface-400;
   }
 }
 
 @layer components {
+  /* Premium Button Styles */
   .btn-primary {
-    @apply rounded-full bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/40 active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-500 px-6 py-3 
+           text-sm font-semibold text-white shadow-lg shadow-brand-500/20
+           transition-all duration-200 ease-out
+           hover:bg-brand-600 hover:shadow-xl hover:shadow-brand-600/25 hover:-translate-y-0.5
+           focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:ring-offset-2
+           active:scale-[0.97] active:translate-y-0
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg;
   }
 
   .btn-secondary {
-    @apply rounded-full border border-surface-200 bg-white px-5 py-2.5 text-sm font-semibold text-surface-800 transition hover:border-surface-300 hover:bg-surface-50 focus:outline-none focus:ring-2 focus:ring-surface-500/20 active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border-2 border-surface-200 
+           bg-white px-6 py-3 text-sm font-semibold text-navy-800
+           transition-all duration-200 ease-out
+           hover:border-surface-300 hover:bg-surface-50 hover:-translate-y-0.5
+           focus:outline-none focus:ring-2 focus:ring-surface-300 focus:ring-offset-2
+           active:scale-[0.97] active:translate-y-0;
   }
 
-  .btn-accent {
-    @apply rounded-full bg-accent-500 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition hover:bg-accent-600 focus:outline-none focus:ring-2 focus:ring-accent-500/40 active:scale-[0.98];
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 
+           text-sm font-semibold text-navy-700
+           transition-all duration-200 ease-out
+           hover:bg-surface-100 hover:text-navy-900
+           focus:outline-none focus:ring-2 focus:ring-surface-300
+           active:scale-[0.97];
   }
 
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-rose-500 px-6 py-3 
+           text-sm font-semibold text-white
+           transition-all duration-200 ease-out
+           hover:bg-rose-600 hover:-translate-y-0.5
+           focus:outline-none focus:ring-2 focus:ring-rose-500/40 focus:ring-offset-2
+           active:scale-[0.97] active:translate-y-0;
+  }
+
+  /* Premium Card Styles */
   .card {
-    @apply rounded-3xl border border-surface-200 bg-white p-6 shadow-soft transition hover:shadow-md;
+    @apply rounded-2xl border border-surface-200/80 bg-white p-6 
+           shadow-card transition-all duration-300 ease-out;
+  }
+  .card:hover {
+    @apply shadow-card-hover -translate-y-0.5 border-brand-200/50;
+  }
+
+  .card-glass {
+    @apply rounded-2xl border border-white/20 bg-white/80 backdrop-blur-xl 
+           shadow-glass transition-all duration-300;
+  }
+
+  .card-gradient {
+    @apply rounded-2xl bg-gradient-to-br from-navy-800 to-navy-900 p-6 
+           text-white shadow-elevated;
+  }
+
+  .card-premium {
+    @apply rounded-2xl bg-white p-6 shadow-card border border-surface-200/60
+           transition-all duration-300 ease-out
+           hover:shadow-card-hover hover:-translate-y-1;
+  }
+
+  /* Premium Input Styles */
+  .input-premium {
+    @apply w-full rounded-xl border border-surface-200 bg-surface-50 px-4 py-3 
+           text-sm text-navy-900 placeholder:text-surface-400
+           transition-all duration-200 ease-out
+           focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 
+           focus:ring-brand-500/20 focus:shadow-glow;
+  }
+
+  .select-premium {
+    @apply w-full rounded-xl border border-surface-200 bg-surface-50 px-4 py-3 
+           text-sm text-navy-900 appearance-none
+           transition-all duration-200 ease-out
+           focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 
+           focus:ring-brand-500/20;
+  }
+
+  /* Premium Badge Styles */
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 
+           text-xs font-semibold transition-all duration-200;
+  }
+  .badge-brand {
+    @apply badge bg-brand-100 text-brand-800;
+  }
+  .badge-emerald {
+    @apply badge bg-emerald-100 text-emerald-800;
+  }
+  .badge-amber {
+    @apply badge bg-amber-100 text-amber-800;
+  }
+  .badge-rose {
+    @apply badge bg-rose-100 text-rose-800;
+  }
+  .badge-navy {
+    @apply badge bg-navy-100 text-navy-800;
+  }
+  .badge-surface {
+    @apply badge bg-surface-100 text-surface-700;
+  }
+
+  /* Premium Section Styles */
+  .section-header {
+    @apply mb-6;
+  }
+  .section-header h2 {
+    @apply text-2xl font-bold text-navy-900;
+  }
+  .section-header p {
+    @apply mt-1 text-sm text-surface-500;
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-500 to-amber-600;
+  }
+
+  .text-gradient-navy {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-navy-800 to-navy-600;
+  }
+
+  /* Glass effect */
+  .glass {
+    @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-glass;
+  }
+
+  /* Divider */
+  .divider {
+    @apply h-px bg-gradient-to-r from-transparent via-surface-200 to-transparent;
+  }
+
+  /* Status dot */
+  .status-dot {
+    @apply inline-block h-2 w-2 rounded-full;
+  }
+  .status-dot-active {
+    @apply status-dot bg-emerald-500 shadow-lg shadow-emerald-500/30;
+  }
+  .status-dot-inactive {
+    @apply status-dot bg-rose-500;
+  }
+
+  /* Skeleton loading */
+  .skeleton {
+    @apply rounded-lg bg-gradient-to-r from-surface-100 via-surface-200 to-surface-100 
+           bg-[length:200%_100%] animate-shimmer;
+  }
+
+  /* Premium divider */
+  .divider-gradient {
+    @apply h-px bg-gradient-to-r from-transparent via-brand-300 to-transparent;
+  }
+
+  /* Page transitions */
+  .page-enter {
+    animation: fadeIn 0.4s ease-out, slideUp 0.4s ease-out;
+  }
+
+  /* Floating action button */
+  .fab {
+    @apply fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center 
+           rounded-full bg-gradient-to-br from-brand-500 to-brand-600 
+           text-white shadow-lg shadow-brand-500/30
+           transition-all duration-300 ease-out
+           hover:shadow-xl hover:shadow-brand-500/40 hover:scale-110
+           active:scale-95;
+  }
+
+  /* Backdrop overlay */
+  .backdrop-overlay {
+    @apply fixed inset-0 z-40 bg-navy-900/40 backdrop-blur-sm;
+  }
+
+  /* Order status badges */
+  .status-badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 
+           text-xs font-semibold capitalize;
+  }
+  .status-badge-pending {
+    @apply status-badge bg-amber-100 text-amber-800;
+  }
+  .status-badge-accepted {
+    @apply status-badge bg-blue-100 text-blue-800;
+  }
+  .status-badge-preparing {
+    @apply status-badge bg-indigo-100 text-indigo-800;
+  }
+  .status-badge-picked_up {
+    @apply status-badge bg-purple-100 text-purple-800;
+  }
+  .status-badge-delivered {
+    @apply status-badge bg-emerald-100 text-emerald-800;
+  }
+  .status-badge-cancelled {
+    @apply status-badge bg-rose-100 text-rose-800;
+  }
+
+  /* Notification dot */
+  .notification-dot {
+    @apply absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center 
+           rounded-full bg-rose-500 text-[10px] font-bold text-white 
+           shadow-lg shadow-rose-500/30;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
 }

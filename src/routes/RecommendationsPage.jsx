@@ -14,74 +14,69 @@ export default function RecommendationsPage() {
       const res = await apiClient.get('/recommendations', { params: { limit: 20 } })
       setType(res.data.type || 'restaurant')
       setRecommendations(res.data.data || [])
-    } catch (err) {
-      toast.error(err.response?.data?.detail || 'Could not load recommendations.')
-    } finally {
-      setLoading(false)
-    }
+    } catch (err) { toast.error(err.response?.data?.detail || 'Could not load recommendations.') }
+    finally { setLoading(false) }
   }
 
-  useEffect(() => {
-    fetchRecommendations()
-  }, [])
+  useEffect(() => { fetchRecommendations() }, [])
 
-  if (type === 'similar_food') {
-    return (
-      <div className="mx-auto max-w-6xl space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-semibold text-slate-900">You might also like</h1>
-            <p className="mt-2 text-sm text-slate-600">Similar dishes you may enjoy.</p>
-          </div>
-          <button type="button" onClick={fetchRecommendations} className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50">Refresh</button>
-        </div>
-        {loading ? (
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 text-center text-slate-600">Loading...</div>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {recommendations.map((item) => (
-              <div key={item.id} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 className="text-lg font-semibold text-slate-900">{item.name}</h3>
-                <p className="mt-1 text-sm text-slate-600">{item.description || item.category}</p>
-                <p className="mt-2 text-sm text-slate-600">Restaurant: {item.restaurant_name || 'N/A'}</p>
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="text-xl font-semibold text-slate-900">₹{item.price.toFixed(2)}</span>
-                  <Link to={item.restaurant_id ? `/restaurants/${item.restaurant_id}` : '#'} className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">View Item</Link>
-                </div>
-              </div>
-            ))}
-            {recommendations.length === 0 && <p className="text-slate-600">No similar dishes found.</p>}
-          </div>
-        )}
-      </div>
-    )
-  }
+  const isRestaurant = type !== 'similar_food'
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold text-slate-900">Recommended For You</h1>
-          <p className="mt-2 text-sm text-slate-600">Based on your order history and preferences.</p>
+          <h1 className="text-3xl font-bold text-navy-900">
+            {isRestaurant ? 'Recommended For You' : 'You Might Also Like'}
+          </h1>
+          <p className="mt-1 text-sm text-surface-500">
+            {isRestaurant ? 'Based on your order history and preferences.' : 'Similar dishes you may enjoy.'}
+          </p>
         </div>
-        <button type="button" onClick={fetchRecommendations} className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50">Refresh</button>
+        <button type="button" onClick={fetchRecommendations} className="btn-secondary">Refresh</button>
       </div>
+
       {loading ? (
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 text-center text-slate-600">Loading...</div>
+        <div className="rounded-2xl border border-surface-200/80 bg-white p-12 text-center shadow-card">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-8 w-8 rounded-full border-2 border-brand-500 border-t-transparent animate-spin" />
+            <p className="text-sm text-surface-500">Loading recommendations...</p>
+          </div>
+        </div>
+      ) : recommendations.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-surface-300 bg-surface-50 p-16 text-center">
+          <p className="text-surface-500">No recommendations yet.</p>
+        </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {recommendations.map((r) => (
-            <div key={r.id} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900">{r.name}</h3>
-              <p className="mt-1 text-sm text-slate-600">{r.cuisine}</p>
-              <p className="mt-2 text-sm text-slate-600">{r.address}</p>
-              <div className="mt-4 flex items-center justify-between">
-                <span className="text-sm font-semibold text-slate-900">★ {r.rating.toFixed(1)} • {r.delivery_time} mins</span>
-                <Link to={`/restaurants/${r.id}`} className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">Order Now</Link>
-              </div>
+            <div key={r.id} className="card-premium">
+              {isRestaurant ? (
+                <>
+                  <h3 className="text-lg font-bold text-navy-900">{r.name}</h3>
+                  <p className="mt-1 text-sm text-surface-500">{r.cuisine}</p>
+                  <p className="mt-2 text-sm text-surface-400">{r.address}</p>
+                  <div className="mt-4 flex items-center justify-between pt-4 border-t border-surface-100">
+                    <span className="text-sm font-semibold text-amber-600 flex items-center gap-1">
+                      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                      {r.rating?.toFixed(1)} • {r.delivery_time} mins
+                    </span>
+                    <Link to={`/restaurants/${r.id}`} className="btn-primary !py-2 !text-xs">Order Now</Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-lg font-bold text-navy-900">{r.name}</h3>
+                  <p className="mt-1 text-sm text-surface-500">{r.description || r.category}</p>
+                  <p className="mt-2 text-sm text-surface-400">Restaurant: {r.restaurant_name || 'N/A'}</p>
+                  <div className="mt-4 flex items-center justify-between pt-4 border-t border-surface-100">
+                    <span className="text-xl font-bold text-navy-900">₹{r.price?.toFixed(2)}</span>
+                    <Link to={r.restaurant_id ? `/restaurants/${r.restaurant_id}` : '#'} className="btn-primary !py-2 !text-xs">View</Link>
+                  </div>
+                </>
+              )}
             </div>
           ))}
-          {recommendations.length === 0 && <p className="text-slate-600">No recommendations yet.</p>}
         </div>
       )}
     </div>

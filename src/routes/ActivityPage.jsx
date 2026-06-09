@@ -12,9 +12,7 @@ export default function ActivityPage() {
   const [limit] = useState(20)
 
   useEffect(() => {
-    if (user?.id) {
-      loadActivities()
-    }
+    if (user?.id) loadActivities()
   }, [user?.id, page])
 
   const loadActivities = async () => {
@@ -23,24 +21,8 @@ export default function ActivityPage() {
       const result = await authService.getActivityLog(page * limit, limit)
       setActivities(result.items || [])
       setTotal(result.total || 0)
-    } catch (error) {
-      toast.error('Failed to load activity log')
-      console.error(error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleDeleteActivity = async (activityId) => {
-    if (!window.confirm('Delete this activity entry?')) return
-    try {
-      await authService.deleteActivity(activityId)
-      toast.success('Activity deleted')
-      loadActivities()
-    } catch (error) {
-      toast.error('Failed to delete activity')
-      console.error(error)
-    }
+    } catch { toast.error('Failed to load activity log') }
+    finally { setLoading(false) }
   }
 
   const handleClearOldActivities = async () => {
@@ -49,93 +31,61 @@ export default function ActivityPage() {
       const result = await authService.clearActivities(90)
       toast.success(result.message)
       loadActivities()
-    } catch (error) {
-      toast.error('Failed to clear activities')
-      console.error(error)
-    }
+    } catch { toast.error('Failed to clear activities') }
   }
 
   const getActivityIcon = (activityType) => {
-    const icons = {
-      login: '🔓',
-      order: '🛒',
-      search: '🔍',
-      view: '👁️',
-      favorite: '❤️',
-    }
+    const icons = { login: '🔓', order: '🛒', search: '🔍', view: '👁️', favorite: '❤️' }
     return icons[activityType] || '📝'
   }
 
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div className="rounded-3xl border border-surface-200 bg-white p-6 shadow-sm">
-        <h1 className="text-3xl font-semibold text-surface-900">Activity Log</h1>
-        <p className="mt-2 text-sm text-surface-500">Track your recent actions and activities.</p>
+    <div className="max-w-3xl mx-auto space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-navy-900">Activity Log</h1>
+          <p className="mt-1 text-sm text-surface-500">Track your recent actions and activities</p>
+        </div>
+        <button onClick={handleClearOldActivities} className="btn-secondary !text-xs !py-2">Clear Old</button>
       </div>
 
-      {/* Actions */}
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={loadActivities}
-          disabled={loading}
-          className="rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50 transition"
-        >
-          {loading ? 'Loading...' : 'Refresh'}
-        </button>
-        <button
-          onClick={handleClearOldActivities}
-          className="rounded-full border border-surface-200 px-5 py-2.5 text-sm font-semibold text-surface-700 hover:bg-surface-50 transition"
-        >
-          Clear Old
-        </button>
-      </div>
-
-      {/* Loading State */}
       {loading ? (
-        <div className="rounded-3xl border border-surface-200 bg-white p-8 text-center text-sm text-surface-500">
+        <div className="rounded-2xl border border-surface-200/80 bg-white p-12 text-center shadow-card">
           <div className="flex flex-col items-center gap-3">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent"></div>
-            <p>Loading activity log...</p>
+            <div className="h-8 w-8 rounded-full border-2 border-brand-500 border-t-transparent animate-spin" />
+            <p className="text-sm text-surface-500">Loading activity log...</p>
           </div>
         </div>
       ) : activities.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-surface-300 bg-surface-50 p-12 text-center">
-          <p className="text-lg font-medium text-surface-900">No activities recorded yet</p>
-          <p className="mt-2 text-sm text-surface-500">
-            Your actions like orders, searches, and logins will appear here.
-          </p>
+        <div className="rounded-2xl border border-dashed border-surface-300 bg-surface-50 p-16 text-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-surface-100">
+              <svg className="h-8 w-8 text-surface-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-navy-900">No activities yet</h3>
+            <p className="text-sm text-surface-500">Your actions like orders, searches, and logins will appear here.</p>
+          </div>
         </div>
       ) : (
         <>
-          {/* Activity List */}
           <div className="space-y-3">
             {activities.map((activity) => (
-              <div
-                key={activity.id}
-                className="group rounded-3xl border border-surface-200 bg-white p-5 shadow-sm transition hover:shadow-md"
-              >
+              <div key={activity.id} className="card-premium">
                 <div className="flex items-start gap-4">
                   <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-50 text-lg">
                     {getActivityIcon(activity.activity_type)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <h3 className="font-semibold text-surface-900 capitalize truncate">
+                      <h3 className="font-semibold text-navy-900 capitalize truncate">
                         {activity.activity_type.replace('_', ' ')}
                       </h3>
-                      <button
-                        onClick={() => handleDeleteActivity(activity.id)}
-                        className="flex-shrink-0 rounded-full p-1.5 text-surface-400 opacity-0 group-hover:opacity-100 hover:text-rose-600 hover:bg-rose-50 transition"
-                        title="Delete activity"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
                     </div>
-                    <p className="text-xs text-surface-500">
+                    <p className="text-xs text-surface-400 mt-0.5">
                       {new Date(activity.created_at).toLocaleDateString('en-IN', {
                         day: 'numeric', month: 'short', year: 'numeric',
                         hour: '2-digit', minute: '2-digit',
@@ -152,26 +102,11 @@ export default function ActivityPage() {
             ))}
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-3 pt-4">
-              <button
-                onClick={() => setPage(Math.max(0, page - 1))}
-                disabled={page === 0}
-                className="rounded-full border border-surface-200 px-4 py-2 text-sm font-medium text-surface-700 hover:bg-surface-50 disabled:opacity-50 transition"
-              >
-                Previous
-              </button>
-              <span className="text-sm text-surface-500">
-                Page {page + 1} of {totalPages}
-              </span>
-              <button
-                onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
-                disabled={page >= totalPages - 1}
-                className="rounded-full border border-surface-200 px-4 py-2 text-sm font-medium text-surface-700 hover:bg-surface-50 disabled:opacity-50 transition"
-              >
-                Next
-              </button>
+            <div className="flex items-center justify-center gap-3">
+              <button onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0} className="btn-secondary">Previous</button>
+              <span className="text-sm text-surface-500">Page {page + 1} of {totalPages}</span>
+              <button onClick={() => setPage(Math.min(totalPages - 1, page + 1))} disabled={page >= totalPages - 1} className="btn-secondary">Next</button>
             </div>
           )}
         </>
