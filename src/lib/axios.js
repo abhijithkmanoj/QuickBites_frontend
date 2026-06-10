@@ -27,6 +27,35 @@ const apiClient = axios.create({
   withCredentials: true,
 })
 
+let isRefreshing = false
+let refreshQueue = []
+let unauthorizedHandler = null
+
+const processQueue = (error, token = null) => {
+  refreshQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error)
+    } else {
+      prom.resolve(token)
+    }
+  })
+  refreshQueue = []
+}
+
+export const registerUnauthorizedHandler = (handler) => {
+  unauthorizedHandler = handler
+}
+
+const refreshAccessToken = async () => {
+  const response = await apiClient.post('/auth/refresh', null, { withCredentials: true })
+  const token = response?.data?.access_token
+  if (!token) {
+    throw new Error('Unable to refresh access token')
+  }
+  setAuthToken(token)
+  return token
+}
+
 // Request interceptor to ensure auth token is always included
 apiClient.interceptors.request.use(
   (config) => {
@@ -46,15 +75,56 @@ apiClient.interceptors.request.use(
   }
 )
 
-// Response interceptor to handle 401 errors
+// Response interceptor to handle 401 errors and refresh expired access tokens
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
+  async (error) => {
+    const originalRequest = error.config
+    const status = error.response?.status
+    const requestUrl = originalRequest?.url || ''
+
+    if (status === 401 && originalRequest && !originalRequest._retry && !requestUrl.includes('/auth/login') && !requestUrl.includes('/auth/refresh')) {
+      originalRequest._retry = true
+
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          refreshQueue.push({ resolve, reject })
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`
+            return apiClient(originalRequest)
+          })
+          .catch((err) => Promise.reject(err))
+      }
+
+      isRefreshing = true
+      try {
+        const newToken = await refreshAccessToken()
+        processQueue(null, newToken)
+        originalRequest.headers.Authorization = `Bearer ${newToken}`
+        return apiClient(originalRequest)
+      } catch (refreshError) {
+        processQueue(refreshError, null)
+        localStorage.removeItem('quickbites_access_token')
+        delete apiClient.defaults.headers.common.Authorization
+        if (unauthorizedHandler) {
+          unauthorizedHandler()
+        }
+        return Promise.reject(refreshError)
+      } finally {
+        isRefreshing = false
+      }
+    }
+
+    if (status === 401) {
       console.warn('[Axios] Received 401, clearing auth')
       localStorage.removeItem('quickbites_access_token')
       delete apiClient.defaults.headers.common.Authorization
+      if (unauthorizedHandler) {
+        unauthorizedHandler()
+      }
     }
+
     return Promise.reject(error)
   }
 )

@@ -35,8 +35,9 @@ import GlobalLayout from './components/GlobalLayout'
 import ProtectedRoute from './components/ProtectedRoute'
 import ErrorBoundary from './components/ErrorBoundary'
 import { store } from './app/store'
-import { loadUser } from './features/auth/authSlice'
+import { loadUser, logout } from './features/auth/authSlice'
 import { loadAccessToken } from './features/auth/authService'
+import { registerUnauthorizedHandler } from './lib/axios'
 import usePushNotifications from './hooks/usePushNotifications'
 
 function AppContent() {
@@ -51,6 +52,12 @@ function AppContent() {
     if (token) {
       dispatch(loadUser())
     }
+  }, [dispatch])
+
+  useEffect(() => {
+    registerUnauthorizedHandler(() => {
+      dispatch(logout())
+    })
   }, [dispatch])
 
   return (
