@@ -143,6 +143,7 @@ function KitchenCard({ order, onStatusAction, onReject }) {
     pending: { status: 'accepted', label: 'Accept' },
     accepted: { status: 'preparing', label: 'Start Preparing' },
     preparing: { status: 'ready_for_pickup', label: 'Mark Ready' },
+    ready_for_pickup: { status: 'delivered', label: 'Mark Delivered' },
   }
 
   const next = nextMap[order.status]
@@ -252,6 +253,7 @@ function ListOrderCard({ order, onAccept, onReject }) {
     pending: 'accepted',
     accepted: 'preparing',
     preparing: 'ready_for_pickup',
+    ready_for_pickup: 'delivered',
   }
 
   const nextAction = nextStatuses[order.status]
@@ -259,6 +261,7 @@ function ListOrderCard({ order, onAccept, onReject }) {
     accepted: 'Accept Order',
     preparing: 'Start Preparing',
     ready_for_pickup: 'Mark Ready',
+    delivered: 'Mark Delivered',
   }[nextAction] : null
 
   return (
@@ -519,12 +522,13 @@ apiClient
     ...(dashboard.active_orders || []),
   ]
 
-  const { order_counts: counts, incoming_orders: incoming, active_orders: active, completed_orders: completed } = dashboard
+  const { order_counts: counts, incoming_orders: incoming, active_orders: active, completed_orders: completed, cancelled_orders: cancelled } = dashboard
 
   const tabData = {
     incoming: { orders: incoming, label: 'Incoming', count: counts.incoming },
     active: { orders: active, label: 'Active', count: counts.active },
     completed: { orders: completed, label: 'Completed', count: counts.completed },
+    cancelled: { orders: cancelled, label: 'Cancelled', count: counts.cancelled },
   }
 
   const currentTab = tabData[activeTab]
@@ -607,11 +611,12 @@ apiClient
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
         <StatCard label="Total Orders" count={counts.total} color="text-slate-900" />
         <StatCard label="Incoming" count={counts.incoming} color="text-amber-600" />
         <StatCard label="In Kitchen" count={counts.active} color="text-blue-600" />
         <StatCard label="Completed" count={counts.completed} color="text-emerald-600" />
+        <StatCard label="Cancelled" count={counts.cancelled} color="text-rose-600" />
       </div>
 
       {/* Kitchen View */}
