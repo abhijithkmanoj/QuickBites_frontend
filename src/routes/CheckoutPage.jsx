@@ -227,6 +227,16 @@ export default function CheckoutPage() {
       // backend previously returned { order: <order> } in some responses.
       // Accept both shapes to avoid `undefined` order IDs.
       const order = resp.data?.order || resp.data
+
+      // If the order was auto-rejected (cancelled), show the rejection reason
+      if (order.status === 'cancelled') {
+        const reason = order.rejection_reason || 'Some items were unavailable.'
+        clearCart(user?.id)
+        toast.error(`Order cancelled: ${reason}`)
+        navigate(`/orders/${order.id}`)
+        return
+      }
+
       if (paymentMethod === 'cod') {
         clearCart(user?.id)
         toast.success('Order placed successfully!')

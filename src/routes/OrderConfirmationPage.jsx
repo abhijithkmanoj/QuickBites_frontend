@@ -57,18 +57,38 @@ export default function OrderConfirmationPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      {/* Success Banner */}
-      <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-8 text-center shadow-sm">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
-          <svg className="h-8 w-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
+      {/* Banner — shows different message for cancelled vs placed orders */}
+      {order.status === 'cancelled' ? (
+        <div className="rounded-3xl border border-rose-200 bg-rose-50 p-8 text-center shadow-sm">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-100">
+            <svg className="h-8 w-8 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <h1 className="mt-4 text-2xl font-semibold text-rose-900">Order Cancelled</h1>
+          <p className="mt-2 text-sm text-rose-700">
+            {order.rejection_reason || 'Some items were unavailable.'}
+          </p>
+          <Link
+            to="/cart"
+            className="mt-4 inline-flex rounded-full bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-rose-700"
+          >
+            Back to Cart
+          </Link>
         </div>
-        <h1 className="mt-4 text-2xl font-semibold text-emerald-900">Order Placed!</h1>
-        <p className="mt-2 text-sm text-emerald-700">
-          Your order has been placed successfully. Pay <strong>₹{order.total_amount?.toFixed(2)}</strong> in cash when it arrives.
-        </p>
-      </div>
+      ) : (
+        <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-8 text-center shadow-sm">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
+            <svg className="h-8 w-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h1 className="mt-4 text-2xl font-semibold text-emerald-900">Order Placed!</h1>
+          <p className="mt-2 text-sm text-emerald-700">
+            Your order has been placed successfully. Pay <strong>₹{order.total_amount?.toFixed(2)}</strong> in cash when it arrives.
+          </p>
+        </div>
+      )}
 
       {/* Order Info */}
       <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">

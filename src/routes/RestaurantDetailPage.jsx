@@ -39,13 +39,21 @@ export default function RestaurantDetailPage() {
   }
 
   const categories = useMemo(() => {
-    const unique = Array.from(new Set(menuItems.map((item) => item.category).filter(Boolean)))
-    return ['All', ...unique]
+    const seen = {}
+    menuItems.forEach((item) => {
+      if (item.category) {
+        const key = item.category.toLowerCase()
+        if (!seen[key]) seen[key] = item.category
+      }
+    })
+    return ['All', ...Object.values(seen)]
   }, [menuItems])
 
   const filteredMenu = useMemo(() => {
     if (selectedCategory === 'All') return menuItems
-    return menuItems.filter((item) => item.category === selectedCategory)
+    return menuItems.filter((item) =>
+      item.category && item.category.toLowerCase() === selectedCategory.toLowerCase()
+    )
   }, [menuItems, selectedCategory])
 
   return (

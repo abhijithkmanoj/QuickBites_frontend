@@ -86,6 +86,13 @@ export default function MenuItemCard({ item }) {
             Unavailable
           </div>
         )}
+        {/* Low stock badge */}
+        {item.is_available && item.stock_quantity != null && item.stock_quantity <= 5 && item.stock_quantity > 0 && (
+          <div className="absolute bottom-3 left-3 bg-amber-500/90 backdrop-blur-sm text-white text-xs font-semibold
+                        px-3 py-1 rounded-lg shadow-lg">
+            Only {item.stock_quantity} left
+          </div>
+        )}
         {/* Popular badge */}
         {item.is_popular && (
           <div className="absolute bottom-3 left-3 bg-gradient-to-r from-brand-500 to-amber-500 text-white text-xs font-semibold

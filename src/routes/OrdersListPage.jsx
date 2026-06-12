@@ -156,6 +156,9 @@ export default function OrdersListPage() {
                     </span>
                   </div>
                   <p className="font-medium text-slate-900">Order #{order.id.substring(0, 8)}</p>
+                  {order.status === 'cancelled' && order.rejection_reason && (
+                    <p className="mt-1 text-xs text-rose-500">Reason: {order.rejection_reason}</p>
+                  )}
                 </div>
                 <div className="text-right">
                   <p className="text-xl font-semibold text-slate-900">₹{order.total_price?.toFixed(2)}</p>

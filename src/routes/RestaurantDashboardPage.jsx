@@ -297,6 +297,13 @@ function ListOrderCard({ order, onAccept, onReject }) {
         </p>
       )}
 
+      {order.status === 'cancelled' && order.rejection_reason && (
+        <div className="mt-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2">
+          <p className="text-xs font-medium text-rose-700">Rejection reason</p>
+          <p className="mt-0.5 text-xs text-rose-600">{order.rejection_reason}</p>
+        </div>
+      )}
+
       <div className="mt-3 flex items-center gap-2">
         {nextAction && (
           <button
@@ -369,6 +376,7 @@ export default function RestaurantDashboardPage() {
   const [viewMode, setViewMode] = useState('list') // 'list' | 'kitchen'
   const [confirmAction, setConfirmAction] = useState(null)
   const [processingAction, setProcessingAction] = useState(false)
+  const [togglingAutoHandle, setTogglingAutoHandle] = useState(null)
   const prevIncomingCount = useRef(0)
 
   // Check if owner has completed onboarding
@@ -598,13 +606,53 @@ apiClient
               🔄 Refresh
             </button>
             {dashboard.restaurants.map((r) => (
-              <Link
-                key={r.id}
-                to={`/restaurants/${r.id}`}
-                className="hidden rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 transition hover:bg-slate-200 sm:inline-flex"
-              >
-                🏪 {r.name}
-              </Link>
+              <div key={r.id} className="hidden items-center gap-1.5 sm:inline-flex">
+                <Link
+                  to={`/restaurants/${r.id}`}
+                  className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 transition hover:bg-slate-200"
+                >
+                  🏪 {r.name}
+                </Link>
+                <button
+                  onClick={async () => {
+                    setTogglingAutoHandle(r.id)
+                    try {
+                      const res = await apiClient.put(`/restaurants/${r.id}`, {
+                        auto_handle_orders: !r.auto_handle_orders,
+                      })
+                      // Update the restaurant in the dashboard state
+                      setDashboard((prev) => ({
+                        ...prev,
+                        restaurants: prev.restaurants.map((rr) =>
+                          rr.id === r.id ? { ...rr, auto_handle_orders: res.data.auto_handle_orders } : rr
+                        ),
+                      }))
+                      toast.success(
+                        `Auto-handle ${res.data.auto_handle_orders ? 'enabled' : 'disabled'} for ${r.name}`
+                      )
+                    } catch (err) {
+                      toast.error('Failed to toggle auto-handle setting.')
+                    } finally {
+                      setTogglingAutoHandle(null)
+                    }
+                  }}
+                  disabled={togglingAutoHandle === r.id}
+                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                    r.auto_handle_orders ? 'bg-emerald-500' : 'bg-slate-300'
+                  }`}
+                  title={
+                    r.auto_handle_orders
+                      ? 'Auto-handle enabled — orders are automatically accepted/rejected based on item availability'
+                      : 'Auto-handle disabled — you must manually accept/reject orders'
+                  }
+                >
+                  <span
+                    className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${
+                      r.auto_handle_orders ? 'translate-x-[18px]' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
             ))}
           </div>
         </div>

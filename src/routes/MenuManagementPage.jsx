@@ -14,6 +14,8 @@ function MenuItemForm({ initial, onSubmit, onCancel, submitting }) {
     category: '',
     is_veg: false,
     is_available: true,
+    stock_quantity: '',
+    stock_unlimited: true,
     ...(initial ? {
       name: initial.name,
       description: initial.description || '',
@@ -21,6 +23,8 @@ function MenuItemForm({ initial, onSubmit, onCancel, submitting }) {
       category: initial.category || '',
       is_veg: initial.is_veg,
       is_available: initial.is_available,
+      stock_quantity: initial.stock_quantity != null ? String(initial.stock_quantity) : '',
+      stock_unlimited: initial.stock_quantity == null,
     } : {}),
   })
 
@@ -47,6 +51,7 @@ function MenuItemForm({ initial, onSubmit, onCancel, submitting }) {
       category: form.category.trim() || null,
       is_veg: form.is_veg,
       is_available: form.is_available,
+      stock_quantity: form.stock_unlimited ? null : parseInt(form.stock_quantity, 10) || 0,
     })
   }
 
@@ -94,25 +99,51 @@ function MenuItemForm({ initial, onSubmit, onCancel, submitting }) {
           className="mt-1 w-full resize-none rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none transition focus:border-slate-400"
         />
       </div>
-      <div className="flex items-center gap-6">
-        <label className="flex items-center gap-2 text-sm text-slate-700">
-          <input
-            type="checkbox"
-            checked={form.is_veg}
-            onChange={handleChange('is_veg')}
-            className="h-4 w-4 rounded border-slate-300 text-emerald-600"
-          />
-          Vegetarian
-        </label>
-        <label className="flex items-center gap-2 text-sm text-slate-700">
-          <input
-            type="checkbox"
-            checked={form.is_available}
-            onChange={handleChange('is_available')}
-            className="h-4 w-4 rounded border-slate-300 text-slate-600"
-          />
-          Available
-        </label>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-3">
+          <label className="flex items-center gap-2 text-sm text-slate-700">
+            <input
+              type="checkbox"
+              checked={form.is_veg}
+              onChange={handleChange('is_veg')}
+              className="h-4 w-4 rounded border-slate-300 text-emerald-600"
+            />
+            Vegetarian
+          </label>
+          <label className="flex items-center gap-2 text-sm text-slate-700">
+            <input
+              type="checkbox"
+              checked={form.is_available}
+              onChange={handleChange('is_available')}
+              className="h-4 w-4 rounded border-slate-300 text-slate-600"
+            />
+            Available
+          </label>
+        </div>
+        <div className="space-y-3">
+          <label className="flex items-center gap-2 text-sm text-slate-700">
+            <input
+              type="checkbox"
+              checked={form.stock_unlimited}
+              onChange={(e) => setForm((prev) => ({ ...prev, stock_unlimited: e.target.checked, stock_quantity: e.target.checked ? '' : '0' }))}
+              className="h-4 w-4 rounded border-slate-300 text-slate-600"
+            />
+            Unlimited Stock
+          </label>
+          {!form.stock_unlimited && (
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Stock Quantity</label>
+              <input
+                type="number"
+                min="0"
+                value={form.stock_quantity}
+                onChange={(e) => setForm((prev) => ({ ...prev, stock_quantity: e.target.value }))}
+                placeholder="e.g. 50"
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none transition focus:border-slate-400"
+              />
+            </div>
+          )}
+        </div>
       </div>
       <div className="flex items-center justify-end gap-3 pt-2">
         <button
@@ -200,6 +231,8 @@ export default function MenuManagementPage() {
   const [editTarget, setEditTarget] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const [restockTarget, setRestockTarget] = useState(null)
+  const [restockQty, setRestockQty] = useState('')
 
   // Fetch all restaurants owned by the user
   useEffect(() => {
@@ -290,6 +323,26 @@ export default function MenuManagementPage() {
     }
   }
 
+  // ── Restock ──
+  const handleRestock = async (item, qty) => {
+    if (submitting) return
+    setSubmitting(true)
+    try {
+      await apiClient.put(`/menu/${item.id}`, {
+        stock_quantity: qty,
+        is_available: qty > 0 ? true : item.is_available,
+      })
+      setMenuItems((prev) => prev.map((m) => (m.id === item.id ? { ...m, stock_quantity: qty, is_available: qty > 0 ? true : m.is_available } : m)))
+      toast.success(`${item.name} restocked to ${qty}.`)
+      setRestockTarget(null)
+      setRestockQty('')
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Failed to restock item.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   // ── Toggle availability ──
   const handleToggleAvailability = async (item) => {
     try {
@@ -303,15 +356,20 @@ export default function MenuManagementPage() {
     }
   }
 
-  // Group by category
+  // Group by category (case-insensitive — 'starter' and 'Starter' are merged)
+  const categoryDisplay = {}
   const grouped = menuItems.reduce((acc, item) => {
-    const cat = item.category || 'Uncategorized'
-    if (!acc[cat]) acc[cat] = []
-    acc[cat].push(item)
+    const rawCat = item.category || 'Uncategorized'
+    const key = rawCat.toLowerCase()
+    if (!acc[key]) {
+      acc[key] = []
+      categoryDisplay[key] = rawCat
+    }
+    acc[key].push(item)
     return acc
   }, {})
 
-  const sortedCategories = Object.keys(grouped).sort()
+  const sortedCategories = Object.keys(grouped).sort((a, b) => categoryDisplay[a].localeCompare(categoryDisplay[b]))
   const selectedRestaurant = restaurants.find((r) => r.id === selectedRestaurantId)
 
   if (loading) {
@@ -394,14 +452,14 @@ export default function MenuManagementPage() {
       {/* Menu Items by Category */}
       {selectedRestaurantId && menuItems.length > 0 ? (
         <div className="space-y-6">
-          {sortedCategories.map((category) => (
-            <div key={category} className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+          {sortedCategories.map((catKey) => (
+            <div key={catKey} className="rounded-2xl border border-slate-200 bg-white shadow-sm">
               <div className="border-b border-slate-100 px-6 py-4">
-                <h2 className="text-base font-semibold text-slate-900">{category}</h2>
-                <p className="text-xs text-slate-400">{grouped[category].length} item{grouped[category].length !== 1 ? 's' : ''}</p>
+                <h2 className="text-base font-semibold text-slate-900">{categoryDisplay[catKey]}</h2>
+                <p className="text-xs text-slate-400">{grouped[catKey].length} item{grouped[catKey].length !== 1 ? 's' : ''}</p>
               </div>
               <div className="divide-y divide-slate-100">
-                {grouped[category].map((item) => (
+                {grouped[catKey].map((item) => (
                   <div key={item.id} className="flex items-center justify-between px-6 py-4 transition hover:bg-slate-50">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
@@ -414,6 +472,70 @@ export default function MenuManagementPage() {
                       </div>
                       {item.description && (
                         <p className="mt-0.5 text-xs text-slate-500 truncate max-w-md">{item.description}</p>
+                      )}
+                      {/* Stock info */}
+                      {item.stock_quantity != null ? (
+                        <p className={`mt-0.5 text-xs ${item.stock_quantity <= 5 ? 'text-rose-500 font-medium' : 'text-slate-400'}`}>
+                          Stock: {item.stock_quantity}
+                          {/* Inline restock */}
+                          {restockTarget === item.id ? (
+                            <span className="ml-2 inline-flex items-center gap-1">
+                              <input
+                                type="number"
+                                min="0"
+                                value={restockQty}
+                                onChange={(e) => setRestockQty(e.target.value)}
+                                placeholder="qty"
+                                className="w-16 rounded border border-slate-200 px-1.5 py-0.5 text-xs outline-none"
+                                autoFocus
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    const qty = parseInt(restockQty, 10)
+                                    if (!isNaN(qty) && qty >= 0) {
+                                      handleRestock(item, qty)
+                                    }
+                                  }
+                                  if (e.key === 'Escape') {
+                                    setRestockTarget(null)
+                                    setRestockQty('')
+                                  }
+                                }}
+                              />
+                              <button
+                                onClick={() => {
+                                  const qty = parseInt(restockQty, 10)
+                                  if (!isNaN(qty) && qty >= 0) handleRestock(item, qty)
+                                }}
+                                className="rounded bg-emerald-600 px-1.5 py-0.5 text-xs font-medium text-white hover:bg-emerald-700"
+                              >
+                                Set
+                              </button>
+                              <button
+                                onClick={() => { setRestockTarget(null); setRestockQty('') }}
+                                className="text-xs text-slate-400 hover:text-slate-600"
+                              >
+                                ✕
+                              </button>
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => { setRestockTarget(item.id); setRestockQty(String(item.stock_quantity)) }}
+                              className="ml-2 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                            >
+                              Restock
+                            </button>
+                          )}
+                        </p>
+                      ) : (
+                        <p className="mt-0.5 text-xs text-slate-400">
+                          Unlimited stock
+                          <button
+                            onClick={() => { setRestockTarget(item.id); setRestockQty('0') }}
+                            className="ml-2 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                          >
+                            Set Stock
+                          </button>
+                        </p>
                       )}
                     </div>
                     <div className="flex items-center gap-3 ml-4">
