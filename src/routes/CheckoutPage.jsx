@@ -5,16 +5,7 @@ import { getCartItems, clearCart } from '../lib/cart'
 import { toast } from 'react-toastify'
 import { useSelector } from 'react-redux'
 import AddressAutocomplete from '../components/common/AddressAutocomplete'
-import PaymentForm from '../components/payments/PaymentForm'
 import PromoCodeInput from '../components/checkout/PromoCodeInput'
-
-function PaymentWidget({ orderId, amountCents, onSuccess }) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-      <PaymentForm amountCents={amountCents} currency="inr" orderId={orderId} onSuccess={onSuccess} />
-    </div>
-  )
-}
 
 const DELIVERY_FEE = 40.0
 const FREE_DELIVERY_THRESHOLD = 500.0
@@ -44,8 +35,6 @@ export default function CheckoutPage() {
     place_id: '',
   })
   const [placing, setPlacing] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState('cod')
-  const [paymentProcessingResult, setPaymentProcessingResult] = useState(null)
   const [tipAmount, setTipAmount] = useState(0)
   const [appliedPromos, setAppliedPromos] = useState([])
   const [promoDiscountCents, setPromoDiscountCents] = useState(0)
@@ -221,7 +210,7 @@ export default function CheckoutPage() {
     try {
       const resp = await apiClient.post('/orders', {
         address_id: selectedAddressId,
-        payment_method: paymentMethod,
+        payment_method: 'cod',
         promo_codes: appliedPromos.map((p) => p.code),
       })
       // backend previously returned { order: <order> } in some responses.
@@ -237,24 +226,18 @@ export default function CheckoutPage() {
         return
       }
 
-      if (paymentMethod === 'cod') {
-        clearCart(user?.id)
-        toast.success('Order placed successfully!')
-        // attach tip if any
-        if (tipAmount && tipAmount > 0) {
-          try {
-            await apiClient.post(`/payouts/orders/${order.id}/tip`, { amount: tipAmount })
-          } catch (e) {
-            // non-fatal
-            console.error('Tip attach failed', e)
-          }
+      clearCart(user?.id)
+      toast.success('Order placed successfully!')
+      // attach tip if any
+      if (tipAmount && tipAmount > 0) {
+        try {
+          await apiClient.post(`/payouts/orders/${order.id}/tip`, { amount: tipAmount })
+        } catch (e) {
+          // non-fatal
+          console.error('Tip attach failed', e)
         }
-        navigate(`/orders/${order.id}`)
-      } else {
-        // If non-COD, let PaymentForm handle client-side flow. Show info to user.
-        toast.info('Proceed to pay using the payment section.')
-        setPaymentProcessingResult({ orderId: order.id, totalCents: Math.round(total * 100) })
       }
+      navigate(`/orders/${order.id}`)
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Failed to place order.')
     } finally {
@@ -420,15 +403,10 @@ export default function CheckoutPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-semibold">Payment</p>
-                  <p className="mt-1 text-xs">Choose a payment method for this order.</p>
+                  <p className="mt-1 text-xs">Cash on delivery — pay when you receive your order.</p>
                 </div>
                 <div className="text-sm">
-                  <label className="mr-2">
-                    <input type="radio" name="payment" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} /> COD
-                  </label>
-                  <label>
-                    <input type="radio" name="payment" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} /> Card
-                  </label>
+                  <span className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 font-semibold text-amber-800">COD</span>
                 </div>
               </div>
             </div>
@@ -472,15 +450,8 @@ export default function CheckoutPage() {
               disabled={placing || !selectedAddressId || cartItems.length === 0}
               className="mt-6 w-full rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {placing ? 'Placing Order...' : paymentMethod === 'cod' ? 'Place Order (COD)' : 'Place Order (Pay)'}
+              {placing ? 'Placing Order...' : 'Place Order (COD)'}
             </button>
-
-            {paymentMethod === 'card' && paymentProcessingResult && (
-              <div className="mt-4">
-                <h4 className="mb-2 text-sm font-semibold">Pay for Order #{paymentProcessingResult.orderId}</h4>
-                <PaymentWidget orderId={paymentProcessingResult.orderId} amountCents={paymentProcessingResult.totalCents} onSuccess={() => { clearCart(user?.id); navigate(`/orders/${paymentProcessingResult.orderId}`) }} />
-              </div>
-            )}
 
             <Link
               to="/cart"
